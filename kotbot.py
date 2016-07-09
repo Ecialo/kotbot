@@ -10,10 +10,10 @@ from tornado import (
     gen,
     httpclient,
 )
-import token
+import teletoken
 __author__ = 'ecialo'
 
-TOKEN = token.TOKEN
+TOKEN = teletoken.TOKEN
 
 
 class BufferFile(types.InputFile):
@@ -111,10 +111,12 @@ class KotBot(api.TeleLich):
 
     @gen.coroutine
     def handle_cats(self, message):
-        kotimg = yield self.http_client.fetch("http://thecatapi.com/api/images/get?type=jpg")
-        # img = io.BytesIO(kotimg.body)
-        img_to_send = BufferFile(kotimg.buffer)
-        yield self.send_photo(message.chat.id_, img_to_send)
+        chat = message.chat
+        if chat.id_ in self.chat_feed:
+            kotimg = yield self.http_client.fetch("http://thecatapi.com/api/images/get?type=jpg")
+            # img = io.BytesIO(kotimg.body)
+            img_to_send = BufferFile(kotimg.buffer)
+            yield self.send_photo(chat.id_, img_to_send)
 
     @gen.coroutine
     def handle_tryapka(self, message):
