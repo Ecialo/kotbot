@@ -106,17 +106,20 @@ class KotBot(api.TeleLich):
     @gen.coroutine
     def handle_help(self, message):
         chat = message.chat
-        yield self.send_message(chat_id=chat.id_, text="Котик реагирует на других котиков, "
+        yield self.send_message(chat_id=chat.id_, text="Котик реагирует на других котиков, если не обижен, "
                                                        "любит кушать и его можно прогнать или поманить")
 
     @gen.coroutine
     def handle_cats(self, message):
         chat = message.chat
+        id_ = message.message_id
         if chat.id_ in self.chat_feed:
             kotimg = yield self.http_client.fetch("http://thecatapi.com/api/images/get?type=jpg")
             # img = io.BytesIO(kotimg.body)
             img_to_send = BufferFile(kotimg.buffer)
-            yield self.send_photo(chat.id_, img_to_send)
+            yield self.send_photo(chat.id_, img_to_send, reply_to_message_id=id_)
+        else:
+            self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
 
     @gen.coroutine
     def handle_tryapka(self, message):
@@ -125,6 +128,7 @@ class KotBot(api.TeleLich):
             id_ = message.message_id
             self.chat_feed.pop(chat.id_)
             yield self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
+
 
     @gen.coroutine
     def handle_feed(self, message):
