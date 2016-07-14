@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import string
+import random as rnd
+from collections import defaultdict
 from telezombie import (
     api,
     types,
@@ -14,6 +16,7 @@ import teletoken
 __author__ = 'ecialo'
 
 TOKEN = teletoken.TOKEN
+MAX_CARMA = 10
 
 
 class BufferFile(types.InputFile):
@@ -46,6 +49,22 @@ class BufferFile(types.InputFile):
             yield chunk
 
 
+class KotChatMember:
+
+    def __init__(self):
+        self.carma = 3
+        self.is_target_for_care = False
+
+
+class KotChat:
+
+    def __init__(self, kotbot):
+        self.kotbot = kotbot
+        self.members = {}
+
+    # def
+
+
 class KotBot(api.TeleLich):
 
     HUNGER = {
@@ -68,8 +87,8 @@ class KotBot(api.TeleLich):
 
     def __init__(self, token):
         super(KotBot, self).__init__(token)
-        self.chat_feed = {}
-        self.http_client = httpclient.AsyncHTTPClient()
+        self.kot_chats = defaultdict(lambda: KotChat(self))
+        # self.http_client = httpclient.AsyncHTTPClient()
 
     # def on
 
@@ -119,7 +138,7 @@ class KotBot(api.TeleLich):
             img_to_send = BufferFile(kotimg.buffer)
             yield self.send_photo(chat.id_, img_to_send, reply_to_message_id=id_)
         else:
-            self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
+            yield self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
 
     @gen.coroutine
     def handle_tryapka(self, message):
