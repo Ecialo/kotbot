@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from tornado import gen
+from tornado import (
+    gen,
+)
 from telezombie import (
     api,
     types,
@@ -62,3 +64,7 @@ class TeleLich(api.TeleLich):
             parse_mode,
             pinned_message,
         ))
+
+    @gen.coroutine
+    def listen(self, hook_url, cert=None):
+        yield self._api.set_webhook(url=hook_url)

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import string
 import random as rnd
 import re
 import json
 from collections import (
-    defaultdict,
+    # defaultdict,
     deque,
 )
 from telezombie import (
@@ -19,15 +18,16 @@ from tornado import (
     ioloop,
     gen,
     httpclient,
+    web,
 )
+import os
 import teletoken
 from catfig import *
 __author__ = 'ecialo'
 
-# with open('./catfig.json') as catfig_file:
-#     catfig = json.load(catfig_file)
 
 TOKEN = teletoken.TOKEN
+PORT = int(os.getenv('PORT', 8000))
 
 
 class BufferFile(types.InputFile):
@@ -60,6 +60,13 @@ class BufferFile(types.InputFile):
             if not chunk:
                 break
             yield chunk
+
+
+class KotHandler(api.TeleHookHandler):
+
+    @gen.coroutine
+    def on_text(self, message):
+        yield self.application.settings['kotbot'].on_text(message)
 
 
 class KotChatMember:
@@ -95,11 +102,9 @@ class KotChat:
 
         iloop = ioloop.IOLoop.current()
         iloop.call_later(1*SECONDS_IN_MINUTE, self.kot_want_eat)
-        iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_care)
-        iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_sleep)
-
-    # def add_member(self, user):
-    #     self.members[user.id_] = KotChatMember(user)
+        # iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_care)
+        iloop.call_later(30, self.kot_want_care)
+        # iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_sleep)
 
     @gen.coroutine
     def send_message(self, *args, **kwargs):
@@ -136,6 +141,7 @@ class KotChat:
     @gen.coroutine
     def kot_want_care(self):
         while self.is_running:
+            print("want care", self.want_care, self.cared)
             if not self.is_asleep:
                 if not self.want_care:
                     try:
@@ -156,17 +162,16 @@ class KotChat:
                         yield gen.sleep(rnd.randint(*CARE_TIMEOUT))
                 elif self.want_care and not self.cared:
                     self.times_not_cared += 1
-                    self.send_photo(BufferFile(CARE_IMG))
+                    yield self.send_photo(BufferFile(CARE_IMG))
                     if self.times_not_cared >= 2:
                         # print("bad")
                         list(filter(lambda member: member.is_target_for_care, self.members.values()))[0].carma -= 1
+                    yield gen.sleep(rnd.randint(*CARE_TIMEOUT))
                 else:
                     self.want_care = False
                     self.cared = False
                     self.times_not_cared = 0
                     yield gen.sleep(rnd.randint(*CARE_GAP))
-            # else:
-            #     yield self.kot_sleep()
 
     @gen.coroutine
     def kot_want_sleep(self):
@@ -183,7 +188,6 @@ class KotChat:
 
     @gen.coroutine
     def kot_want_eat(self):
-            # print(self.satiety)
         while self.is_running:
             self.satiety -= 1
             if not self.is_asleep:
@@ -299,7 +303,6 @@ class KotChat:
             fname = message.from_.first_name
             sname = message.from_.last_name
             rmessage = []
-            # print(self.members[userid].carma)
             if userid in self.members and self.members[userid].carma >= NORMAL_CARMA:
                 rmessage.append(SATIETY_TO_MESSAGE[self.satiety])
                 if self.satiety < MAX_SATIETY:
@@ -364,17 +367,13 @@ class KotBot(api2.TeleLich):
             '/help': self.handle_help,
             '/care': self.handle_care,
             '/stop': self.handle_stop,      # Work
-            '/hunger': self.handle_hunger,
-            '/sleep': self.handle_sleep,
-            '/play': self.handle_play,
+            # '/hunger': self.handle_hunger,
+            # '/sleep': self.handle_sleep,
+            # '/play': self.handle_play,
         }
-        # self.http_client = httpclient.AsyncHTTPClient()
-
-    # def on
 
     @gen.coroutine
     def on_text(self, message):
-        # id_ = message.message_id
         iloop = ioloop.IOLoop.current()
         text = message.text
         chat_id = message.chat.id_
@@ -397,20 +396,13 @@ class KotBot(api2.TeleLich):
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_scare, message)
                 elif CAT in lotext:
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_cats_reaction, message)
-        # if text.startswith("/start"):
-        #     yield self.handle_start(message)
 
     @gen.coroutine
     def handle_start(self, message):
-        # self.chat_feed[message.chat.id_] = 3
         chat = message.chat
-        # print(chat)
-        # print(message.from_)
         if chat.id_ not in self.kot_chats:
             self.kot_chats[chat.id_] = KotChat(chat.id_, self)
         self.kot_chats[chat.id_].start(message)
-        # yield self.send_message(chat_id=chat.id_, text="@Zloe_ALoe улюлюлю")
-        # ioloop.IOLoop.current().call_later(100, self.satiety, chat.id_)
 
     @gen.coroutine
     def handle_stop(self, message):
@@ -425,7 +417,6 @@ class KotBot(api2.TeleLich):
 
     @gen.coroutine
     def handle_add_to_feeder(self, message):
-        # print(message)
         self.kot_chats[message.chat.id_].add_food_to_feeder(message)
 
     @gen.coroutine
@@ -446,16 +437,30 @@ class KotBot(api2.TeleLich):
 
     @gen.coroutine
     def run(self, polling=True):
-        yield self.poll()
-
-
-@gen.coroutine
-def forever():
-    lich = KotBot(TOKEN)
-    yield lich.poll()
+        if polling:
+            yield self.poll()
+        else:
+            yield self.listen(
+                'https://{ip}/{token}'.format(
+                    ip=teletoken.IP,
+                    token=teletoken.TOKEN,
+                ),
+                cert=teletoken.CERT
+            )
+            application = web.Application(
+                [
+                    (r"/{token}".format(token=teletoken.TOKEN), KotHandler)
+                ],
+                kotbot=self,
+            )
+            application.listen(PORT)
 
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--polling", action='store_true')
+    args = parser.parse_args()
     kotbot = KotBot(TOKEN)
-    ioloop.IOLoop.current().spawn_callback(kotbot.run)
+    ioloop.IOLoop.current().spawn_callback(kotbot.run, args.polling)
     ioloop.IOLoop.current().start()
