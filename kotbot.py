@@ -5,7 +5,7 @@ import random as rnd
 import re
 import json
 from collections import (
-    defaultdict,
+    # defaultdict,
     deque,
 )
 from telezombie import (
@@ -19,6 +19,7 @@ from tornado import (
     ioloop,
     gen,
     httpclient,
+    web,
 )
 import teletoken
 from catfig import *
@@ -62,6 +63,13 @@ class BufferFile(types.InputFile):
             yield chunk
 
 
+class KotHandler(api.TeleHookHandler):
+
+    @gen.coroutine
+    def on_text(self, message):
+        yield self.application.settings['kotbot'].on_text(message)
+
+
 class KotChatMember:
 
     def __init__(self, user):
@@ -95,8 +103,9 @@ class KotChat:
 
         iloop = ioloop.IOLoop.current()
         iloop.call_later(1*SECONDS_IN_MINUTE, self.kot_want_eat)
-        iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_care)
-        iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_sleep)
+        # iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_care)
+        iloop.call_later(30, self.kot_want_care)
+        # iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_sleep)
 
     # def add_member(self, user):
     #     self.members[user.id_] = KotChatMember(user)
@@ -136,6 +145,7 @@ class KotChat:
     @gen.coroutine
     def kot_want_care(self):
         while self.is_running:
+            print("want care", self.want_care, self.cared)
             if not self.is_asleep:
                 if not self.want_care:
                     try:
@@ -156,10 +166,11 @@ class KotChat:
                         yield gen.sleep(rnd.randint(*CARE_TIMEOUT))
                 elif self.want_care and not self.cared:
                     self.times_not_cared += 1
-                    self.send_photo(BufferFile(CARE_IMG))
+                    yield self.send_photo(BufferFile(CARE_IMG))
                     if self.times_not_cared >= 2:
                         # print("bad")
                         list(filter(lambda member: member.is_target_for_care, self.members.values()))[0].carma -= 1
+                    yield gen.sleep(rnd.randint(*CARE_TIMEOUT))
                 else:
                     self.want_care = False
                     self.cared = False
@@ -446,16 +457,22 @@ class KotBot(api2.TeleLich):
 
     @gen.coroutine
     def run(self, polling=True):
-        yield self.poll()
-
-
-@gen.coroutine
-def forever():
-    lich = KotBot(TOKEN)
-    yield lich.poll()
+        if polling:
+            yield self.poll()
+        else:
+            print("not polling")
+            yield self.listen('https://{ip}/hook'.format(ip=teletoken.IP))
+            application = web.Application([
+                (r"/hook", KotHandler)
+            ], kotbot=self)
+            application.listen(80)
 
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--polling", action='store_true')
+    args = parser.parse_args()
     kotbot = KotBot(TOKEN)
-    ioloop.IOLoop.current().spawn_callback(kotbot.run)
+    ioloop.IOLoop.current().spawn_callback(kotbot.run, args.polling)
     ioloop.IOLoop.current().start()

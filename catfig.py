@@ -46,7 +46,7 @@ SATIETY_TO_MESSAGE = {
     1: "Омномномчавкхлюп",
     0: "ОМНОМНОМЧАВКНОМХЛЮПЧАВКНОМ"
 }
-SATIETY_TO_WAIT = {i: SECONDS_IN_MINUTE*i for i in range(11)}
+SATIETY_TO_WAIT = {i: SECONDS_IN_MINUTE*(i+1) for i in range(11)}
 
 VOMIT_MESSAGE = """
 <i>Котяра съел слишком много и его стошнило. В этом явно виноват {fname} {sname}</i>
@@ -98,12 +98,14 @@ WAKEUP_MESSAGE = """
 Миявввв...
 """
 
-CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
+# CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
+CARE_TIMEOUT = 10, 15
 CARE_GAP = 5*SECONDS_IN_MINUTE, 60*SECONDS_IN_MINUTE
 WANT_CARE_MESSAGE = """
 <i>Котяра трется о ногу {fname} {sname} и мурчит.</i>
 """
 CARE_IMG = io.BytesIO(open("pet.jpg", 'rb').read())
+# CARE_IMG = "pet.jpg"
 CARE_MESSAGE = """
 <i>{fname} {sname} погладил котяру.</i>
 """
