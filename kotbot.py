@@ -2,6 +2,8 @@
 
 import string
 import random as rnd
+import re
+import json
 from collections import (
     defaultdict,
     deque,
@@ -10,21 +12,28 @@ from telezombie import (
     api,
     types,
 )
+from telezombie2 import (
+    api as api2
+)
 from tornado import (
     ioloop,
     gen,
     httpclient,
 )
 import teletoken
+from catfig import *
 __author__ = 'ecialo'
 
+# with open('./catfig.json') as catfig_file:
+#     catfig = json.load(catfig_file)
+
 TOKEN = teletoken.TOKEN
-MAX_CARMA = 10
 
 
 class BufferFile(types.InputFile):
 
     def __init__(self, buffer):
+        # print(buffer)
         self.buff = buffer
         self._file_path = "file.jpg"
 
@@ -45,8 +54,9 @@ class BufferFile(types.InputFile):
 
     def stream(self, chunk_size=524288):
         # with io.Bopen(self.buff, 'rb') as fin:
+        b = io.BytesIO(self.buff.getbuffer())
         while True:
-            chunk = self.buff.read(chunk_size)
+            chunk = b   .read(chunk_size)
             if not chunk:
                 break
             yield chunk
@@ -55,113 +65,309 @@ class BufferFile(types.InputFile):
 class KotChatMember:
 
     def __init__(self, user):
-        self.carma = 3
+        self._carma = INITAL_CARMA
         self.is_target_for_care = False
         self.user = user
+
+    @property
+    def carma(self):
+        return self._carma
+
+    @carma.setter
+    def carma(self, value):
+        self._carma = min(MAX_CARMA, max(0, value))
 
 
 class KotChat:
 
-    KORMUSHKA_OVERFLOW = 'Так как кормушка была переполнена из неё вывалился недоеденный корм, а именно {old_food}'
-
-    def __init__(self, kotbot):
+    def __init__(self, chat_id, kotbot):
+        self.chat_id = chat_id
         self.kotbot = kotbot
         self.is_running = False
 
         self.members = {}
-        self.kormushka = deque(maxlen=5)     # TODO переименовать это
+        self.feeder = deque(maxlen=FEEDER_SIZE)
         self.is_asleep = False
-        self.hunger = 5
+        self._satiety = INITAL_SATIETY
+        self.want_care = False
+        self.cared = False
+        self.times_not_cared = 0
 
-    def add_member(self, user):
-        self.members[user.id_] = KotChatMember(user)
+        iloop = ioloop.IOLoop.current()
+        iloop.call_later(1*SECONDS_IN_MINUTE, self.kot_want_eat)
+        iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_care)
+        iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_sleep)
+
+    # def add_member(self, user):
+    #     self.members[user.id_] = KotChatMember(user)
 
     @gen.coroutine
-    def start(self, message):
+    def send_message(self, *args, **kwargs):
+        return (yield self.kotbot.send_message(self.chat_id, *args, **kwargs))
+
+    @gen.coroutine
+    def send_photo(self, *args, **kwargs):
+        yield self.kotbot.send_photo(self.chat_id, *args, **kwargs)
+
+    @property
+    def satiety(self):
+        return self._satiety
+
+    @satiety.setter
+    def satiety(self, value):
+        self._satiety = min(MAX_SATIETY, max(0, value))
+
+    @gen.coroutine
+    def start(self, _):
         self.is_running = True
-        yield self.kotbot.send_message("ПрИвЕтИк!!!")
+        yield self.send_message(
+            START_MESSAGE,
+            parse_mode=api2.PARSE_MODE_HTML
+        )
 
     @gen.coroutine
-    def stop(self, message):
+    def stop(self, _):
         self.is_running = False
-        yield self.kotbot.send_message("ПоКеДовА!!!")
+        yield self.send_message(
+            STOP_MESSAGE,
+            parse_mode=api2.PARSE_MODE_HTML
+        )
 
     @gen.coroutine
     def kot_want_care(self):
         while self.is_running:
-            pass
+            if not self.is_asleep:
+                if not self.want_care:
+                    try:
+                        target_for_care = rnd.choice(list(self.members.values()))
+                    except IndexError:
+                        yield gen.sleep(rnd.randint(*CARE_GAP))
+                    else:
+                        target_for_care.is_target_for_care = True
+                        user = target_for_care.user
+                        self.want_care = True
+                        yield self.send_message(
+                            WANT_CARE_MESSAGE.format(
+                                fname=user.first_name or "",
+                                sname=user.last_name or "",
+                            ),
+                            parse_mode=api2.PARSE_MODE_HTML,
+                        )
+                        yield gen.sleep(rnd.randint(*CARE_TIMEOUT))
+                elif self.want_care and not self.cared:
+                    self.times_not_cared += 1
+                    self.send_photo(BufferFile(CARE_IMG))
+                    if self.times_not_cared >= 2:
+                        # print("bad")
+                        list(filter(lambda member: member.is_target_for_care, self.members.values()))[0].carma -= 1
+                else:
+                    self.want_care = False
+                    self.cared = False
+                    self.times_not_cared = 0
+                    yield gen.sleep(rnd.randint(*CARE_GAP))
+            # else:
+            #     yield self.kot_sleep()
 
     @gen.coroutine
     def kot_want_sleep(self):
-        pass
+        while self.is_running:
+            self.is_asleep = True
+            sleep_time = rnd.randint(*SLEEP_DURATION)
+            ioloop.IOLoop.current().call_later(sleep_time, self.kot_wake_up)
+            yield self.send_message(
+                SLEEP_MESSAGE,
+                parse_mode=api2.PARSE_MODE_HTML
+            )
+            sleep_gap = rnd.randint(*SLEEP_GAP)
+            yield gen.sleep(sleep_gap)
 
     @gen.coroutine
     def kot_want_eat(self):
-        pass
+            # print(self.satiety)
+        while self.is_running:
+            self.satiety -= 1
+            if not self.is_asleep:
+                if self.feeder:
+                    food = self.feeder.popleft()
+                    message = yield self.send_message(
+                        FEEDER_CONSUME_MESSAGE.format(food=food),
+                        parse_mode=api2.PARSE_MODE_HTML
+                    )
+                    yield self.kot_eat(message)
+                else:
+                    yield self.send_message(MEW)
+            yield gen.sleep(SATIETY_TO_WAIT[self.satiety])
 
     @gen.coroutine
-    def meet_hello(self, message):
-        pass
-
-    @gen.coroutine
-    def cats_reaction(self, message):
-        pass
-
-    @gen.coroutine
-    def add_food_to_kormushka(self, message):
+    def add_food_to_feeder(self, message):
         command_text = message.text.split()
         new_food = " ".join(command_text[1::])
-        kormushka_overflow = len(self.kormushka) == self.kormushka.maxlen
-        self.kormushka.append(new_food)
-        base_message = 'Вы добавили "{new_food}" в кормушку.'.format(new_food=new_food)
-        if kormushka_overflow:
-            old_food = self.kormushka.popleft()
-            overflow_message = self.KORMUSHKA_OVERFLOW.format(old_food=old_food)
+        user = message.from_
+        feeder_overflow = len(self.feeder) == self.feeder.maxlen
+        self.feeder.append(new_food)
+        base_message = ADD_FOOD_TO_FEEDER_MESSAGE.format(
+            new_food=new_food,
+            fname=user.first_name or "",
+            sname=user  .last_name or "",
+        )
+        if feeder_overflow:
+            old_food = self.feeder.popleft()
+            overflow_message = FEEDER_OVERFLOW_MESSAGE.format(old_food=old_food)
         else:
             overflow_message = ""
-        yield self.kotbot.send_message("\n".join([base_message, overflow_message]))
+        yield self.send_message(
+            "".join([base_message, overflow_message]),
+            parse_mode=api2.PARSE_MODE_HTML,
+        )
 
     @gen.coroutine
-    def kot_wake_up(self, message):
-        pass
+    def kot_wake_up(self, reason=None):
+        if self.is_asleep:
+            self.is_asleep = False
+            if reason is None:
+                yield self.send_message(WAKEUP_MESSAGE)
+            else:
+                userid = reason.from_.id_
+                if userid in self.members:
+                    self.members[reason.from_.id_].carma -= 1
+                    yield self.kot_agressive(reason)
 
     @gen.coroutine
     def kot_sleep(self, message):
-        pass
+        yield self.send_message(
+            rnd.choice(SLEEP_MESSAGES),
+            reply_to_message_id=message.message_id,
+        )
 
     @gen.coroutine
-    def kot_goodbye(self, message):
-        pass
+    def kot_scare(self, message):
+        userid = message.from_.id_
+        if userid in self.members:
+            if not self.is_asleep:
+                self.members.pop(message.from_.id_)
+                yield self.kot_agressive(message)
+            else:
+                yield self.kot_sleep(message)
 
     @gen.coroutine
     def kot_care(self, message):
-        pass
+        userid = message.from_.id_
+        user = message.from_
+        if not self.is_asleep:
+            # print(self.members[userid].is_target_for_care, self.members[userid].user.username)
+            if userid in self.members and self.members[userid].is_target_for_care:
+                if self.times_not_cared == 0:
+                    self.members[message.from_.id_].carma += 1
+                yield self.send_message(
+                    TARGET_CARE_MESSAGE.format(
+                        fname=user.first_name or "",
+                        sname=user.last_name or "",
+                    ),
+                    parse_mode=api2.PARSE_MODE_HTML,
+                )
+            else:
+                yield self.send_message(
+                    CARE_MESSAGE.format(
+                        fname=user.first_name or "",
+                        sname=user.last_name or "",
+                    ),
+                    parse_mode=api2.PARSE_MODE_HTML,
+                )
+        else:
+            yield self.send_message(
+                SLEEP_CARE_MESSAGE.format(
+                    fname=user.first_name or "",
+                    sname=user.last_name or "",
+                ),
+                parse_mode=api2.PARSE_MODE_HTML,
+            )
+
+    @gen.coroutine
+    def kot_hello(self, message):
+        if message.from_.id_ not in self.members:
+            self.members[message.from_.id_] = KotChatMember(message.from_)
+        yield self.send_message(
+            HELLO_MESSAGE,
+            reply_to_message_id=message.message_id,
+        )
+
+    @gen.coroutine
+    def kot_eat(self, message):
+        if not self.is_asleep:
+            userid = message.from_.id_
+            username = message.from_.username
+            fname = message.from_.first_name
+            sname = message.from_.last_name
+            rmessage = []
+            # print(self.members[userid].carma)
+            if userid in self.members and self.members[userid].carma >= NORMAL_CARMA:
+                rmessage.append(SATIETY_TO_MESSAGE[self.satiety])
+                if self.satiety < MAX_SATIETY:
+                    self.satiety += 1
+                    self.members[userid].carma += 1
+                else:
+                    rmessage.append(
+                        VOMIT_MESSAGE.format(
+                            fname=fname or "",
+                            sname=sname or "",
+                        )
+                    )
+                    self.members[userid].carma -= 2
+            elif userid in self.members and self.members[userid].carma < BAD_CARMA:
+                yield self.kot_agressive(message)
+            elif username == KOTYARABOT:
+                rmessage.append(SATIETY_TO_MESSAGE[self.satiety])
+                self.satiety += 1
+            if rmessage:
+                yield self.send_message(
+                    "".join(rmessage),
+                    reply_to_message_id=message.message_id,
+                    parse_mode=api2.PARSE_MODE_HTML,
+                )
+        else:
+            yield self.kot_sleep(message)
+
+    @gen.coroutine
+    def kot_cats_reaction(self, message):
+        if message.from_.id_ in self.members:
+            if not self.is_asleep:
+                member = self.members[message.from_.id_]
+                if member.carma >= NORMAL_CARMA:
+                    client = httpclient.AsyncHTTPClient()
+                    kotimg = yield client.fetch("http://thecatapi.com/api/images/get?type=jpg&size=small")
+                    img_to_send = BufferFile(kotimg.buffer)
+                    yield self.send_photo(
+                        img_to_send,
+                        reply_to_message_id=message.message_id,
+                    )
+                elif member.carma < BAD_CARMA:
+                    yield self.kot_agressive(message)
+            else:
+                yield self.kot_sleep(message)
+
+    @gen.coroutine
+    def kot_agressive(self, message):
+        yield self.send_message(
+            rnd.choice(AGRESSIVE_MESSAGES),
+            reply_to_message_id=message.message_id,
+        )
 
 
-class KotBot(api.TeleLich):
-
-    HUNGER = {
-        5: 300,
-        4: 200,
-        3: 120,
-        2: 60,
-        1: 15,
-        0: 2,
-    }
-
-    HUNGER_MESSAGE = {
-        5: "Няяяям-Няяяяям",
-        4: "Ням-Ням-Ням",
-        3: "Омномном",
-        2: "Омномномномном",
-        1: "Омномномчавкхлюп",
-        0: "ОМНОМНОМЧАВКНОМХЛЮПЧАВКНОМ"
-    }
+class KotBot(api2.TeleLich):
 
     def __init__(self, token):
-        super(KotBot, self).__init__(token)
-        # self.kot_chats = defaultdict(lambda: KotChat(self))
+        self._api = api2.TeleZombie(token)
         self.kot_chats = {}
+        self.commands = {
+            '/start': self.handle_start,    # Work
+            '/add_to_feeder': self.handle_add_to_feeder,
+            '/help': self.handle_help,
+            '/care': self.handle_care,
+            '/stop': self.handle_stop,      # Work
+            '/hunger': self.handle_hunger,
+            '/sleep': self.handle_sleep,
+            '/play': self.handle_play,
+        }
         # self.http_client = httpclient.AsyncHTTPClient()
 
     # def on
@@ -169,24 +375,30 @@ class KotBot(api.TeleLich):
     @gen.coroutine
     def on_text(self, message):
         # id_ = message.message_id
+        iloop = ioloop.IOLoop.current()
         text = message.text
-        if text.startswith("/start"):
-            yield self.handle_start(message)
-        # elif text.startswith("/help"):
-        #     yield self.handle_help(message)
-        # elif text.lower().count("кис") >= 3:
+        chat_id = message.chat.id_
+        lotext = text.lower()
+        # putext = lotext.strip(string.punctuation)
+        if text.startswith(COMMAND_START):
+            yield self.commands[COMMAND_START](message)
+        elif text.startswith(COMMAND_SYM):
+            if message.chat.id_ in self.kot_chats:
+                yield self.commands[re.search(COMMAND, text).group()](message)
+        else:
+            if message.chat.id_ in self.kot_chats:
+                if lotext.endswith(LOUD):
+                    yield self.kot_chats[chat_id].kot_wake_up(message)
+                if any(((eat_word in lotext) for eat_word in EAT_WORDS)):
+                    iloop.spawn_callback(self.kot_chats[chat_id].kot_eat, message)
+                elif lotext.count(HELLO_WORD) >= HELLO_COUNT:
+                    iloop.spawn_callback(self.kot_chats[chat_id].kot_hello, message)
+                elif SCARE_WORD in lotext:
+                    iloop.spawn_callback(self.kot_chats[chat_id].kot_scare, message)
+                elif CAT in lotext:
+                    iloop.spawn_callback(self.kot_chats[chat_id].kot_cats_reaction, message)
+        # if text.startswith("/start"):
         #     yield self.handle_start(message)
-        # # elif text.startswith("/tryapka"):
-        # elif text.lower().rstrip(string.punctuation) == "брысь":
-        #     yield self.handle_tryapka(message)
-        # # elif text.startswith("/feed"):
-        # #     yield self.handle_feed(message)
-        # elif "куша" in text.lower():
-        #     yield self.handle_feed(message)
-        # elif "кот" in text.lower():
-        #     yield self.handle_cats(message)
-
-        # yield self.send_message(chat_id=chat.id_, text=text)
 
     @gen.coroutine
     def handle_start(self, message):
@@ -195,10 +407,10 @@ class KotBot(api.TeleLich):
         # print(chat)
         # print(message.from_)
         if chat.id_ not in self.kot_chats:
-            self.kot_chats[chat.id_] = KotChat(self)
+            self.kot_chats[chat.id_] = KotChat(chat.id_, self)
         self.kot_chats[chat.id_].start(message)
         # yield self.send_message(chat_id=chat.id_, text="@Zloe_ALoe улюлюлю")
-        # ioloop.IOLoop.current().call_later(100, self.hunger, chat.id_)
+        # ioloop.IOLoop.current().call_later(100, self.satiety, chat.id_)
 
     @gen.coroutine
     def handle_stop(self, message):
@@ -209,47 +421,32 @@ class KotBot(api.TeleLich):
     @gen.coroutine
     def handle_help(self, message):
         chat = message.chat
-        yield self.send_message(chat_id=chat.id_, text="Котик реагирует на других котиков, если не обижен, "
-                                                       "любит кушать и его можно прогнать или поманить")
-    #
-    # @gen.coroutine
-    # def handle_cats(self, message):
-    #     chat = message.chat
-    #     id_ = message.message_id
-    #     if chat.id_ in self.chat_feed:
-    #         kotimg = yield self.http_client.fetch("http://thecatapi.com/api/images/get?type=jpg")
-    #         # img = io.BytesIO(kotimg.body)
-    #         img_to_send = BufferFile(kotimg.buffer)
-    #         yield self.send_photo(chat.id_, img_to_send, reply_to_message_id=id_)
-    #     else:
-    #         yield self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
-    #
-    # @gen.coroutine
-    # def handle_tryapka(self, message):
-    #     chat = message.chat
-    #     if chat.id_ in self.chat_feed:
-    #         id_ = message.message_id
-    #         self.chat_feed.pop(chat.id_)
-    #         yield self.send_message(chat_id=chat.id_, text="ШшШшшШШ!!!", reply_to_message_id=id_)
-    #
-    #
-    # @gen.coroutine
-    # def handle_feed(self, message):
-    #     chat = message.chat
-    #     if chat.id_ in self.chat_feed:
-    #         id_ = message.message_id
-    #         old_hunger = self.chat_feed[message.chat.id_]
-    #         self.chat_feed[message.chat.id_] = min(old_hunger + 1, 5)
-    #         yield self.send_message(chat_id=chat.id_, text=self.HUNGER_MESSAGE[old_hunger], reply_to_message_id=id_)
-    #
-    # @gen.coroutine
-    # def hunger(self, chat_id):
-    #     if chat_id in self.chat_feed:
-    #         # now = dt.datetime.now()
-    #         # time_since_last_feed = (now - self.chat_feed[chat_id]).total_seconds()
-    #         ioloop.IOLoop.current().call_later(self.HUNGER[self.chat_feed[chat_id]], self.hunger, chat_id)
-    #         self.chat_feed[chat_id] = max(self.chat_feed[chat_id] - 1, 0)
-    #         yield self.send_message(chat_id=chat_id, text="МЯУ!")
+        yield self.send_message(chat_id=chat.id_, text=HELP_MESSAGE)
+
+    @gen.coroutine
+    def handle_add_to_feeder(self, message):
+        # print(message)
+        self.kot_chats[message.chat.id_].add_food_to_feeder(message)
+
+    @gen.coroutine
+    def handle_care(self, message):
+        self.kot_chats[message.chat.id_].kot_care(message)
+
+    @gen.coroutine
+    def handle_hunger(self, message):
+        self.kot_chats[message.chat.id_].kot_want_eat()
+
+    @gen.coroutine
+    def handle_sleep(self, message):
+        self.kot_chats[message.chat.id_].kot_want_sleep()
+
+    @gen.coroutine
+    def handle_play(self, message):
+        self.kot_chats[message.chat.id_].kot_want_care()
+
+    @gen.coroutine
+    def run(self, polling=True):
+        yield self.poll()
 
 
 @gen.coroutine
@@ -259,5 +456,6 @@ def forever():
 
 
 if __name__ == '__main__':
-    ioloop.IOLoop.current().spawn_callback(forever)
+    kotbot = KotBot(TOKEN)
+    ioloop.IOLoop.current().spawn_callback(kotbot.run)
     ioloop.IOLoop.current().start()
