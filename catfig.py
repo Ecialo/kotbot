@@ -82,6 +82,7 @@ FEEDER_CONSUME_MESSAGE = """
 """
 
 SLEEP_DURATION = 5*SECONDS_IN_MINUTE, 10*SECONDS_IN_MINUTE
+# SLEEP_DURATION = 5, 10
 SLEEP_GAP = 30*SECONDS_IN_MINUTE, 60*SECONDS_IN_MINUTE
 SLEEP_MESSAGES = [
     "Хрррр-Хрррр",
@@ -98,8 +99,8 @@ WAKEUP_MESSAGE = """
 Миявввв...
 """
 
-# CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
-CARE_TIMEOUT = 10, 15
+CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
+# CARE_TIMEOUT = 10, 15
 CARE_GAP = 5*SECONDS_IN_MINUTE, 60*SECONDS_IN_MINUTE
 WANT_CARE_MESSAGE = """
 <i>Котяра трется о ногу {fname} {sname} и мурчит.</i>
@@ -110,11 +111,15 @@ CARE_MESSAGE = """
 <i>{fname} {sname} погладил котяру.</i>
 """
 SLEEP_CARE_MESSAGE = """
-<i>{fname} {sname} <i>погладил спящего котика.</i>
+<i>{fname} {sname} погладил спящего котика.</i>
 """
 TARGET_CARE_MESSAGE = """
 <i>{fname} {sname} погладил котяру.</i>
 Мурррррррр.
+"""
+DISAPPOINTED_CARE_MESSAGE = """
+<i>{fname} {sname} погладил котяру.</i>
+Мур.
 """
 
 AGRESSIVE_MESSAGES = [

@@ -102,9 +102,10 @@ class KotChat:
 
         iloop = ioloop.IOLoop.current()
         iloop.call_later(1*SECONDS_IN_MINUTE, self.kot_want_eat)
-        # iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_care)
-        iloop.call_later(30, self.kot_want_care)
-        # iloop.call_later(3*SECONDS_IN_MINUTE, self.kot_want_sleep)
+        iloop.call_later(5*SECONDS_IN_MINUTE, self.kot_want_care)
+        # iloop.call_later(30, self.kot_want_care)
+        iloop.call_later(10*SECONDS_IN_MINUTE, self.kot_want_sleep)
+        # iloop.call_later(10, self.kot_want_sleep)
 
     @gen.coroutine
     def send_message(self, *args, **kwargs):
@@ -141,7 +142,7 @@ class KotChat:
     @gen.coroutine
     def kot_want_care(self):
         while self.is_running:
-            print("want care", self.want_care, self.cared)
+            # print("want care", self.want_care, self.cared)
             if not self.is_asleep:
                 if not self.want_care:
                     try:
@@ -172,6 +173,8 @@ class KotChat:
                     self.cared = False
                     self.times_not_cared = 0
                     yield gen.sleep(rnd.randint(*CARE_GAP))
+            else:
+                yield gen.sleep(rnd.randint(*CARE_GAP))
 
     @gen.coroutine
     def kot_want_sleep(self):
@@ -260,15 +263,24 @@ class KotChat:
         if not self.is_asleep:
             # print(self.members[userid].is_target_for_care, self.members[userid].user.username)
             if userid in self.members and self.members[userid].is_target_for_care:
+                self.cared = True
                 if self.times_not_cared == 0:
                     self.members[message.from_.id_].carma += 1
-                yield self.send_message(
-                    TARGET_CARE_MESSAGE.format(
-                        fname=user.first_name or "",
-                        sname=user.last_name or "",
-                    ),
-                    parse_mode=api2.PARSE_MODE_HTML,
-                )
+                    yield self.send_message(
+                        TARGET_CARE_MESSAGE.format(
+                            fname=user.first_name or "",
+                            sname=user.last_name or "",
+                        ),
+                        parse_mode=api2.PARSE_MODE_HTML,
+                    )
+                else:
+                    yield self.send_message(
+                        DISAPPOINTED_CARE_MESSAGE.format(
+                            fname=user.first_name or "",
+                            sname=user.last_name or "",
+                        ),
+                        parse_mode=api2.PARSE_MODE_HTML,
+                    )
             else:
                 yield self.send_message(
                     CARE_MESSAGE.format(
@@ -288,12 +300,15 @@ class KotChat:
 
     @gen.coroutine
     def kot_hello(self, message):
-        if message.from_.id_ not in self.members:
-            self.members[message.from_.id_] = KotChatMember(message.from_)
-        yield self.send_message(
-            HELLO_MESSAGE,
-            reply_to_message_id=message.message_id,
-        )
+        if not self.is_asleep:
+            if message.from_.id_ not in self.members:
+                self.members[message.from_.id_] = KotChatMember(message.from_)
+            yield self.send_message(
+                HELLO_MESSAGE,
+                reply_to_message_id=message.message_id,
+            )
+        else:
+            yield self.kot_sleep(message)
 
     @gen.coroutine
     def kot_eat(self, message):
