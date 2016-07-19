@@ -68,6 +68,13 @@ class KotHandler(api.TeleHookHandler):
     def on_text(self, message):
         yield self.application.settings['kotbot'].on_text(message)
 
+    @gen.coroutine
+    def post(self, *args, **kwargs):
+        try:
+            super().post()
+        except Exception as ex:
+            print(ex)
+
 
 class KotChatMember:
 
@@ -398,7 +405,9 @@ class KotBot(api2.TeleLich):
             yield self.commands[COMMAND_START](message)
         elif text.startswith(COMMAND_SYM):
             if message.chat.id_ in self.kot_chats:
-                yield self.commands[re.search(COMMAND, text).group()](message)
+                command = self.commands.get(re.search(COMMAND, text).group())
+                if command:
+                    yield command(message)
         else:
             if message.chat.id_ in self.kot_chats:
                 if lotext.endswith(LOUD):
@@ -414,6 +423,7 @@ class KotBot(api2.TeleLich):
 
     @gen.coroutine
     def handle_start(self, message):
+        print(message.chat, message.from_)
         chat = message.chat
         if chat.id_ not in self.kot_chats:
             self.kot_chats[chat.id_] = KotChat(chat.id_, self)
