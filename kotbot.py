@@ -27,6 +27,7 @@ __author__ = 'ecialo'
 
 
 TOKEN = teletoken.TOKEN
+TOKEN_DEV = teletoken.TOKEN_DEV
 PORT = int(os.getenv('PORT', 8000))
 
 
@@ -485,7 +486,9 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--polling", action='store_true')
+    parser.add_argument("-d", "--dev", action="store_true")
     args = parser.parse_args()
-    kotbot = KotBot(TOKEN)
+    token = TOKEN if not args.dev else TOKEN_DEV
+    kotbot = KotBot(token)
     ioloop.IOLoop.current().spawn_callback(kotbot.run, args.polling)
     ioloop.IOLoop.current().start()
