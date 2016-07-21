@@ -7,7 +7,7 @@ KOTYARABOT = "kotyarabot"
 
 SECONDS_IN_MINUTE = 60
 
-CAT = "кот"
+CAT = ["кот", "кис"]
 
 COMMAND = re.compile(r"/\w+")
 COMMAND_START = "/start"
@@ -122,6 +122,12 @@ DISAPPOINTED_CARE_MESSAGE = """
 <i>{fname} {sname} погладил котяру.</i>
 Мур.
 """
+BAD_CARE_MESSAGE = """
+<i>Котяра недоволен и цапает {fname} {sname} за палец.</i>
+ШШШШ.
+"""
+
+
 
 AGRESSIVE_MESSAGES = [
     "ШШШшШшШ!!!",
@@ -130,4 +136,11 @@ AGRESSIVE_MESSAGES = [
     "Шшшшшшшшшшшшш....",
 ]
 
-MEW = "МЯУ!"
+MEW = [
+    "МЯУ!",
+    "Мяу!",
+    "Мяяяяу",
+    "Мияу",
+    "Меяу",
+]
+MEW_TRIGGER = ["мяу", "ня"]

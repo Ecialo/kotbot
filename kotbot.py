@@ -107,6 +107,7 @@ class KotChat:
         self.want_care = False
         self.cared = False
         self.times_not_cared = 0
+        self.times_cared = 0
 
         iloop = ioloop.IOLoop.current()
         iloop.call_later(1*SECONDS_IN_MINUTE, self.kot_want_eat)
@@ -210,7 +211,7 @@ class KotChat:
                     )
                     yield self.kot_eat(message)
                 else:
-                    yield self.send_message(MEW)
+                    yield self.kot_mew(None)
             yield gen.sleep(SATIETY_TO_WAIT[self.satiety])
 
     @gen.coroutine
@@ -259,6 +260,10 @@ class KotChat:
         userid = message.from_.id_
         if userid in self.members:
             if not self.is_asleep:
+                if self.members[userid].is_target_for_care:
+                    self.want_care = False
+                    self.cared = False
+                    self.times_not_cared = 0
                 self.members.pop(message.from_.id_)
                 yield self.kot_agressive(message)
             else:
@@ -269,6 +274,20 @@ class KotChat:
         userid = message.from_.id_
         user = message.from_
         if not self.is_asleep:
+            suc = rnd.randint(0, self.times_cared)
+            print(suc)
+            if suc > 5:
+                self.times_cared = 0
+                yield self.send_message(
+                    BAD_CARE_MESSAGE.format(
+                        fname=user.first_name or "",
+                        sname=user.last_name or "",
+                    ),
+                    parse_mode=api2.PARSE_MODE_HTML,
+                )
+                return
+            else:
+                self.times_cared += 1
             # print(self.members[userid].is_target_for_care, self.members[userid].user.username)
             if userid in self.members and self.members[userid].is_target_for_care:
                 self.cared = True
@@ -378,6 +397,16 @@ class KotChat:
             reply_to_message_id=message.message_id,
         )
 
+    @gen.coroutine
+    def kot_mew(self, message):
+        yield self.send_message(
+            rnd.choice(MEW)
+        )
+
+
+def check_loudness(text):
+    return text.upper() == text
+
 
 class KotBot(api2.TeleLich):
 
@@ -411,15 +440,17 @@ class KotBot(api2.TeleLich):
                     yield command(message)
         else:
             if message.chat.id_ in self.kot_chats:
-                if lotext.endswith(LOUD):
+                if lotext.endswith(LOUD) or check_loudness(text):
                     yield self.kot_chats[chat_id].kot_wake_up(message)
+                if any(((mew_trigger in lotext) for mew_trigger in MEW_TRIGGER)):
+                    iloop.spawn_callback(self.kot_chats[chat_id].kot_mew, message)
                 if any(((eat_word in lotext) for eat_word in EAT_WORDS)):
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_eat, message)
                 elif lotext.count(HELLO_WORD) >= HELLO_COUNT:
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_hello, message)
                 elif SCARE_WORD in lotext:
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_scare, message)
-                elif CAT in lotext:
+                elif any(((cat in lotext) for cat in CAT)):
                     iloop.spawn_callback(self.kot_chats[chat_id].kot_cats_reaction, message)
 
     @gen.coroutine
