@@ -44,7 +44,7 @@ class State:
         pass
 
     @gen.coroutine
-    def kot_care(self):
+    def kot_care(self, message):
         pass
 
 

@@ -58,11 +58,11 @@ class KotChat:
         self.feeder_max_capacity = FEEDER_SIZE
 
         iloop = ioloop.IOLoop.current()
-        # iloop.call_later(SATIETY_TO_WAIT[self.satiety], self.kot_want_eat)
+        iloop.call_later(SATIETY_TO_WAIT[self.satiety], self.kot_want_eat)
         # iloop.call_later(60, self.kot_want_eat)
-        # iloop.call_later(rnd.randint(*SLEEP_GAP), self.kot_want_sleep)
+        iloop.call_later(rnd.randint(*SLEEP_GAP), self.kot_want_sleep)
         # iloop.call_later(180, self.kot_want_sleep)
-        # iloop.call_later(rnd.randint(*CARE_GAP), self.kot_want_care)
+        iloop.call_later(rnd.randint(*CARE_GAP), self.kot_want_care)
         # iloop.call_later(120, self.kot_want_care)
 
     # def __getitem__(self, item):

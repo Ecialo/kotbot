@@ -15,7 +15,10 @@ from tornado import (
 import os
 import teletoken
 from catfig import *
-from kotchat import kotchat
+from kotchat import (
+    kotchat,
+    cat_show,
+)
 __author__ = 'ecialo'
 
 
@@ -38,6 +41,19 @@ class KotHandler(api.TeleHookHandler):
             print(ex)
 
 
+def struct_to_row(struct):
+    s = struct
+    # print(s)
+    return TABLE_ROW.safe_substitute(
+        pos=s[0],
+        weight=s[1],
+        cat_name=s[2],
+        fname=s[3][0],
+        sname=s[3][1],
+        org_name=("группу " + s[4] if s[4] else "самого себя")
+    )
+
+
 class KotBot(api2.TeleLich):
 
     def __init__(self, token):
@@ -49,12 +65,15 @@ class KotBot(api2.TeleLich):
             "/stop": self.handle_stop,
             "/add_to_feeder": self.handle_add_to_feeder,
             "/care": self.handle_care,
-            '/hunger': self.handle_hunger,
-            '/sleep': self.handle_sleep,
-            '/play': self.handle_play,
+            # '/hunger': self.handle_hunger,
+            # '/sleep': self.handle_sleep,
+            # '/play': self.handle_play,
             '/hug': self.handle_hug,
+            '/to_show': self.handle_show,
 
         }
+
+        self.show = cat_show.CatShow()
 
     @gen.coroutine
     def on_text(self, message):
@@ -121,6 +140,44 @@ class KotBot(api2.TeleLich):
     def handle_hug(self, message):
         chat_id = message.chat.id_
         yield self.kot_chats[chat_id].kot_hug(message)
+
+    @gen.coroutine
+    def handle_show(self, message):
+        chat_id = message.chat.id_
+        cat = self.kot_chats[chat_id]
+        fname = message.from_.first_name or ""
+        sname = message.from_.last_name or ""
+        yield self.send_message(
+            chat_id,
+            SHOW_MESSAGE.safe_substitute(
+                fname=fname,
+                sname=sname,
+            ),
+            parse_mode=api2.PARSE_MODE_HTML
+        )
+        yield self.show.add_cat(message, cat.name or "", cat.weight)
+        top10, our_res = yield self.show.get_cat(message)
+        yield self.send_message(
+            chat_id,
+            OUR_RANK.safe_substitute(
+                cat_name=cat.name,
+                weight=cat.weight,
+                pos=our_res,
+                fname=fname,
+                sname=sname,
+            ),
+            parse_mode=api2.PARSE_MODE_HTML
+        )
+        full_table = "".join(map(struct_to_row, top10))
+        yield self.send_message(
+            chat_id,
+            FULL_TABLE_MESSAGE,
+            parse_mode=api2.PARSE_MODE_HTML
+        )
+        yield self.send_message(
+            chat_id,
+            full_table,
+            parse_mode=api2.PARSE_MODE_HTML)
 
     @gen.coroutine
     def handle_hunger(self, message):

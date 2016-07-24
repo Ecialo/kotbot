@@ -185,3 +185,17 @@ CAT_NORMAL = "вполне этим доволен."
 
 FAT = Template("<i>$cat_name толстеет.</i>")
 THIN = Template("<i>$cat_name худеет.</i>")
+
+
+SHOW_MESSAGE = Template("""<i>
+$fname $sname поехал с котиком на выставку
+</i>""")
+
+OUR_RANK = Template("""
+<i>$cat_name занял</i> <b>$pos</b> <i>место с</i> <b>$weight</b> <i>кило</i>
+""")
+FULL_TABLE_MESSAGE = "<i>Верх таблицы выглядит так </i>"
+TABLE_ROW = Template("""<pre>
+$pos - $cat_name весом $weight c хозяином $fname $sname представляющим $org_name
+</pre>
+""")
