@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import io
+from string import Template
 __author__ = 'ecialo'
 
 KOTYARABOT = "kotyarabot"
@@ -48,24 +49,28 @@ SATIETY_TO_MESSAGE = {
 }
 SATIETY_TO_WAIT = {i: SECONDS_IN_MINUTE*(i+1) for i in range(11)}
 
-VOMIT_MESSAGE = """
-<i>Котяра съел слишком много и его стошнило. В этом явно виноват {fname} {sname}</i>
-"""
+VOMIT_MESSAGE = Template("""
+<i>Котяра съел слишком много и его стошнило. В этом явно виноват $fname $sname</i>
+""")
 
-START_MESSAGE = """
+START_MESSAGE = Template("""
 <i>У вас завелся котяра. Сейчас он тихо сидит в уголке.
 Как его зовут?</i>
-"""
+""")
 
-ALREADY_CAT_MESSAGE = """
+ALREADY_CAT_MESSAGE = Template("""
 <i>У вас уже есть котик!</i>
-"""
+""")
 
-CAT_NAME_MESSAGE = """
-<i>Котику нравится имя {cat_name}</i>
-"""
+CAT_NAME_MESSAGE = Template("""
+<i>Котику нравится имя $cat_name</i>
+""")
 
-HELP_MESSAGE = """
+NO_NAME_CAT = Template("""
+<i>Котик решил, что будет зваться $cat_name!</i>
+""")
+
+HELP_MESSAGE = Template("""
 Это котик в телеграме.
 Чтобы лично познакомиться с котиком поманите его напечатав "кис-кис" или что-то вроде.
 Пока вы этого не сделаете, котяра будет вас по большей части игнорировать.
@@ -74,22 +79,25 @@ HELP_MESSAGE = """
 /stop если котик больше не нужен
 /care чтобы погладить Котяру
 /add_to_feeder <какая нибудь еда> чтобы положить еду в кормушку
-"""
+""")
 
-STOP_MESSAGE = """
+STOP_MESSAGE = Template("""
 <i>Котяра выпрыгнул с балкона и убежал.</i>
-"""
+""")
 
-FEEDER_SIZE = 10
-ADD_FOOD_TO_FEEDER_MESSAGE = """
-<i>{fname} {sname} добавил</i> <b>{new_food}</b> <i>в кормушку.</i>
-"""
-FEEDER_OVERFLOW_MESSAGE = """
+FEEDER_SIZE = 5
+ADD_FOOD_TO_FEEDER_MESSAGE = Template("""
+<i>$fname $sname добавил</i> <b>$new_food</b> <i>в кормушку.</i>
+""")
+FEEDER_OVERFLOW_MESSAGE = Template("""
 <i>Так как кормушка была переполнена из неё вывалился недоеденный корм, а именно</i> <b>{old_food}</b>
-"""
-FEEDER_CONSUME_MESSAGE = """
-<i>Котяра съедает из кормушки</i> <b>{food}</b>
-"""
+""")
+FEEDER_CONSUME_MESSAGE = Template("""
+<i>$cat_name съедает из кормушки</i> <b>$food</b>
+""")
+FEEDER_NO_ADD_MESSAGE = Template("""
+<i>$fname $sname ничего не добавил в кормушку</i>
+""")
 
 SLEEP_DURATION = 5*SECONDS_IN_MINUTE, 10*SECONDS_IN_MINUTE
 # SLEEP_DURATION = 5, 10
@@ -101,41 +109,43 @@ SLEEP_MESSAGES = [
     "Хрррхррвап...",
     "ХррХррр",
 ]
-SLEEP_MESSAGE = """
-<i>Котяра ложится спать</i>
-"""
+SLEEP_MESSAGE = Template("""
+<i>$cat_name ложится спать</i>
+""")
 
-WAKEUP_MESSAGE = """
+WAKEUP_MESSAGE = Template("""
 Миявввв...
-"""
+""")
 
-CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
-# CARE_TIMEOUT = 10, 15
+# CARE_TIMEOUT = SECONDS_IN_MINUTE, 2*SECONDS_IN_MINUTE
+CARE_TIMEOUT = 10, 15
 CARE_GAP = 5*SECONDS_IN_MINUTE, 60*SECONDS_IN_MINUTE
-WANT_CARE_MESSAGE = """
-<i>Котяра трется о ногу {fname} {sname} и мурчит.</i>
-"""
+WANT_CARE_MESSAGE = Template("""
+<i>$cat_name трется о ногу $fname $sname и мурчит.</i>
+""")
 CARE_IMG = io.BytesIO(open("pet.jpg", 'rb').read())
 # CARE_IMG = "pet.jpg"
-CARE_MESSAGE = """
-<i>{fname} {sname} погладил котяру.</i>
-"""
-SLEEP_CARE_MESSAGE = """
-<i>{fname} {sname} погладил спящего котика.</i>
-"""
-TARGET_CARE_MESSAGE = """
-<i>{fname} {sname} погладил котяру.</i>
+CARE_MESSAGE = Template("""
+<i>$fname $sname погладил котяру.</i>
+""")
+SLEEP_CARE_MESSAGE = Template("""
+<i>$fname $sname погладил спящего котика.</i>
+""")
+TARGET_CARE_MESSAGE = Template("""
+<i>$fname $sname погладил котика.</i>
 Мурррррррр.
-"""
-DISAPPOINTED_CARE_MESSAGE = """
-<i>{fname} {sname} погладил котяру.</i>
+""")
+DISAPPOINTED_CARE_MESSAGE = Template("""
+<i>$fname $sname погладил котеку.</i>
 Мур.
-"""
-BAD_CARE_MESSAGE = """
-<i>Котяра недоволен и цапает {fname} {sname} за палец.</i>
+""")
+SAD_CAT_MESSAGE = Template("""
+Мямямяууууу...
+""")
+BAD_CARE_MESSAGE = Template("""
+<i>$cat_name недоволен и цапает $fname $sname за палец.</i>
 ШШШШ.
-"""
-
+""")
 
 
 AGRESSIVE_MESSAGES = [

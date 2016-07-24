@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from telezombie import types
+import io
 __author__ = 'ecialo'
 
 
