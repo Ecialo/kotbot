@@ -182,10 +182,12 @@ class Awake(Regular):
     @gen.coroutine
     def kot_scare(self, message):
         self.kotchat.members[message.from_.id_].is_in_chat = False
+        yield self.kot_agressive(message)
 
     @gen.coroutine
     def kot_hello(self, message):
         self.kotchat.members[message.from_.id_].is_in_chat = True
+        yield self.send_message(HELLO_MESSAGE)
 
     @gen.coroutine
     def kot_care(self, message):

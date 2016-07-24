@@ -115,7 +115,7 @@ class KotChat:
         user = message.from_
         if user.id_ not in self.members:
             self.members[user.id_] = KotChatMember(user)
-        print(self.times_cared, self.satiety, self.feeder, self.weight, self.state)
+        # print(self.times_cared, self.satiety, self.feeder, self.weight, self.state)
         yield self.state.on_text(message)
 
     @gen.coroutine
