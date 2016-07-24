@@ -52,6 +52,7 @@ class KotBot(api2.TeleLich):
             '/hunger': self.handle_hunger,
             '/sleep': self.handle_sleep,
             '/play': self.handle_play,
+            '/hug': self.handle_hug,
 
         }
 
@@ -115,6 +116,11 @@ class KotBot(api2.TeleLich):
     def handle_care(self, message):
         chat_id = message.chat.id_
         yield self.kot_chats[chat_id].kot_care(message)
+
+    @gen.coroutine
+    def handle_hug(self, message):
+        chat_id = message.chat.id_
+        yield self.kot_chats[chat_id].kot_hug(message)
 
     @gen.coroutine
     def handle_hunger(self, message):

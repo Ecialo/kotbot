@@ -49,6 +49,9 @@ SATIETY_TO_MESSAGE = {
 }
 SATIETY_TO_WAIT = {i: SECONDS_IN_MINUTE*(i+1) for i in range(11)}
 
+SATIETY_TO_FAT = 5
+SATIETY_TO_THIN = 0
+
 VOMIT_MESSAGE = Template("""
 <i>Котяра съел слишком много и его стошнило. В этом явно виноват $fname $sname</i>
 """)
@@ -147,6 +150,9 @@ BAD_CARE_MESSAGE = Template("""
 ШШШШ.
 """)
 
+# SLEEP_HUNGER = Template("""
+# <i> У котик
+# """)
 
 AGRESSIVE_MESSAGES = [
     "ШШШшШшШ!!!",
@@ -163,3 +169,19 @@ MEW = [
     "Меяу",
 ]
 MEW_TRIGGER = ["мяу", "ня"]
+
+INITAL_WEIGHT = 5
+
+CAT_HUG = Template("""<i>
+$fname $sname обнимает котика.
+$cat_name ${cat_action}. На вскидку котейка весит </i><b> ${weight} </b><i>кило и, кажется, $weight_action
+</i>""")
+HUG_GOOD_CARMA = "радостно мурчит"
+HUG_BAD_CARMA = "шипит и вырывается"
+HUG_NO_CARMA = "недоуменно мяукает"
+CAT_FAT = "продолжает толстеть."
+CAT_THIN = "продолжает худеть."
+CAT_NORMAL = "вполне этим доволен."
+
+FAT = Template("<i>$cat_name толстеет.</i>")
+THIN = Template("<i>$cat_name худеет.</i>")

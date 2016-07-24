@@ -43,6 +43,10 @@ class State:
     def kot_want_eat(self):
         pass
 
+    @gen.coroutine
+    def kot_care(self):
+        pass
+
 
 class Hello(State):
 
@@ -64,7 +68,7 @@ class Regular(State):
     def on_text(self, message):
         iloop = ioloop.IOLoop.current()
         lotext = message.text.lower()
-        print(lotext)
+        # print(lotext)
         user = self.kotchat.members[message.from_.id_]
         carma = user.carma
         if user.is_in_chat:
@@ -141,8 +145,16 @@ class Awake(Regular):
                 FEEDER_CONSUME_MESSAGE.safe_substitute(food=food),
             )
             yield self.kot_eat(message)
+            if self.kotchat.satiety >= SATIETY_TO_FAT:
+                self.kotchat.weight += 1
+                yield self.send_message(FAT)
         else:
             yield self.kot_mew(None)
+            if self.kotchat.satiety == SATIETY_TO_THIN:
+                self.kotchat.weight -= 1
+                thin = yield self.send_message(THIN)
+                if self.kotchat.weight <= 0:
+                    yield self.kotchat.kotbot.handle_stop(thin)
 
     @gen.coroutine
     def kot_cats_reaction(self, message):
@@ -198,7 +210,7 @@ class Awake(Regular):
 
     @gen.coroutine
     def kot_eat(self, message):
-        print("EAT")
+        # print("EAT")
         userid = message.from_.id_
         username = message.from_.username
         fname = message.from_.first_name
@@ -220,6 +232,7 @@ class Awake(Regular):
                     )
                 )
                 self.kotchat.members[userid].carma -= 2
+                self.kotchat.weight = int(self.kotchat.weight*0.9)
         if rmessage:
             yield self.send_message(
                 "".join(rmessage),
