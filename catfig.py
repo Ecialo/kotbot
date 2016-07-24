@@ -93,7 +93,7 @@ ADD_FOOD_TO_FEEDER_MESSAGE = Template("""
 <i>$fname $sname добавил</i> <b>$new_food</b> <i>в кормушку.</i>
 """)
 FEEDER_OVERFLOW_MESSAGE = Template("""
-<i>Так как кормушка была переполнена из неё вывалился недоеденный корм, а именно</i> <b>{old_food}</b>
+<i>Так как кормушка была переполнена из неё вывалился недоеденный корм, а именно</i> <b>$old_food</b>
 """)
 FEEDER_CONSUME_MESSAGE = Template("""
 <i>$cat_name съедает из кормушки</i> <b>$food</b>
@@ -139,7 +139,7 @@ TARGET_CARE_MESSAGE = Template("""
 Мурррррррр.
 """)
 DISAPPOINTED_CARE_MESSAGE = Template("""
-<i>$fname $sname погладил котеку.</i>
+<i>$fname $sname погладил котейку.</i>
 Мур.
 """)
 SAD_CAT_MESSAGE = Template("""
