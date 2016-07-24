@@ -43,6 +43,9 @@ class TeleZombie(api.TeleZombie):
 
 class TeleLich(api.TeleLich):
 
+    def __init__(self, api_token):
+        self._api = TeleZombie(api_token)
+
     @gen.coroutine
     def send_message(
             self,
