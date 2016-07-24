@@ -23,7 +23,7 @@ class CatShow:
     @gen.coroutine
     def get_cat(self, message):
         target_cat = message.chat.id_
-        cats_rate = enumerate(sorted(self.cats.values(), key=lambda x: x[0]), 1)
+        cats_rate = enumerate(sorted(self.cats.values(), key=lambda x: x[0], reverse=True), 1)
         top10 = []
         target_pos = None
         for cat_pos, cat in cats_rate:
