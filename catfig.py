@@ -150,6 +150,29 @@ BAD_CARE_MESSAGE = Template("""
 ШШШШ.
 """)
 
+AFK_DURATION = 60*SECONDS_IN_MINUTE, 120*SECONDS_IN_MINUTE
+# AFK_DURATION = 10, 10
+AFK_GAP = 720*SECONDS_IN_MINUTE, 1440*SECONDS_IN_MINUTE
+# FK_GAP = 20, 20
+AFK_MESSAGE = Template("""
+<i>Котяре наскучило сидеть дома. $cat_name вышел на улицу прогуляться</i>
+""")
+AFK_CARE_MESSAGE = Template("""
+<i>$fname $sname хочет погладить котяру, но обнаруживает, что того нет дома.</i>
+""")
+AFK_HUG_MESSAGE = Template("""
+<i>$fname $sname хочет обнять котика, но его нет дома.</i>
+""")
+BACK_MESSAGE_NORMAL = Template("""
+<i>$cat_name вернулся домой.</i>
+""")
+BACK_MESSAGE_THIN = Template("""
+<i>$cat_name вернулся домой. Похоже, он немного похудел</i>
+""")
+BACK_MESSAGE_FAT = Template("""
+<i>$cat_name вернулся домой сытый, довольный, и, как будто, потолстевший</i>
+""")
+
 # SLEEP_HUNGER = Template("""
 # <i> У котик
 # """)
