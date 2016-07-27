@@ -44,7 +44,15 @@ class State:
         pass
 
     @gen.coroutine
+    def kot_want_walk(self):
+        pass
+
+    @gen.coroutine
     def kot_care(self, message):
+        pass
+
+    @gen.coroutine
+    def kot_hug(self, message):
         pass
 
 
@@ -93,6 +101,41 @@ class Regular(State):
             iloop.spawn_callback(self.kot_agressive, message)
         else:
             iloop.spawn_callback(self.kot_passive, message)
+
+    @gen.coroutine
+    def kot_hug(self, message):
+        fat = self.kotchat.satiety >= SATIETY_TO_FAT
+        thin = self.kotchat.satiety == SATIETY_TO_THIN
+        userid = message.from_.id_
+        familiar = userid in self.kotchat.members and self.kotchat.members[userid].is_in_chat
+        carma = self.kotchat.members[userid].carma if familiar else None
+        fname = message.from_.first_name or ""
+        sname = message.from_.last_name or ""
+        if carma is not None:
+            if carma >= NORMAL_CARMA:
+                carma_message = HUG_GOOD_CARMA
+            elif carma <= VERY_BAD_CARMA:
+                carma_message = HUG_BAD_CARMA
+            else:
+                carma_message = HUG_NO_CARMA
+        else:
+            carma_message = HUG_NO_CARMA
+
+        if fat:
+            weight_message = CAT_FAT
+        elif thin:
+            weight_message = CAT_THIN
+        else:
+            weight_message = CAT_NORMAL
+
+        result_message = CAT_HUG.safe_substitute(
+            weight=self.kotchat.weight,
+            fname=fname,
+            sname=sname,
+            weight_action=weight_message,
+            cat_action=carma_message,
+        )
+        yield self.send_message(result_message)
 
     def kot_want_sleep(self):
         pass
@@ -155,6 +198,10 @@ class Awake(Regular):
                 thin = yield self.send_message(THIN)
                 if self.kotchat.weight <= 0:
                     yield self.kotchat.kotbot.handle_stop(thin)
+
+    @gen.coroutine
+    def kot_want_walk(self):
+        self.kotchat.change_state(AFK)
 
     @gen.coroutine
     def kot_cats_reaction(self, message):
@@ -399,4 +446,60 @@ class Sleep(Regular):
         yield self.send_message(
             rnd.choice(AGRESSIVE_MESSAGES),
             reply_to_message_id=message.message_id,
+        )
+
+
+class AFK(Regular):
+
+    def __init__(self, kotchat):
+        super().__init__(kotchat)
+        loop = ioloop.IOLoop.current()
+        loop.spawn_callback(
+            self.send_message,
+            AFK_MESSAGE
+        )
+        loop.call_later(rnd.randint(*AFK_DURATION), self.kot_back_home, None)
+
+    @gen.coroutine
+    def kot_back_home(self, message):
+        if self.is_running:
+
+            self.kotchat.satiety = rnd.randint(SATIETY_TO_THIN, SATIETY_TO_FAT)
+            if self.kotchat.satiety == SATIETY_TO_FAT:
+                self.kotchat.weight += 1
+                yield self.send_message(BACK_MESSAGE_FAT)
+                self.kotchat.change_state(Sleep)
+            elif self.kotchat.satiety == SATIETY_TO_THIN:
+                self.kotchat.weight -= 1
+                yield self.send_message(BACK_MESSAGE_THIN)
+                self.kotchat.change_state(Awake)
+            else:
+                yield self.send_message(BACK_MESSAGE_NORMAL)
+                self.kotchat.change_state(Awake)
+
+    @gen.coroutine
+    def on_text(self, message):
+        pass
+
+    def kot_check_and_action(self, _, __, message):
+        pass
+
+    @gen.coroutine
+    def kot_care(self, message):
+        user = message.from_
+        yield self.send_message(
+            AFK_CARE_MESSAGE.safe_substitute(
+                fname=user.first_name or "",
+                sname=user.last_name or "",
+            )
+        )
+
+    @gen.coroutine
+    def kot_hug(self, message):
+        user = message.from_
+        yield self.send_message(
+            AFK_HUG_MESSAGE.safe_substitute(
+                fname=user.first_name or "",
+                sname=user.last_name or "",
+            )
         )

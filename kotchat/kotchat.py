@@ -64,6 +64,7 @@ class KotChat:
         # iloop.call_later(180, self.kot_want_sleep)
         iloop.call_later(rnd.randint(*CARE_GAP), self.kot_want_care)
         # iloop.call_later(120, self.kot_want_care)
+        iloop.call_later(rnd.randint(*AFK_GAP), self.kot_want_walk)
 
     # def __getitem__(self, item):
     #     pass
@@ -134,6 +135,11 @@ class KotChat:
             yield [self.state.kot_want_care(), gen.sleep(rnd.randint(*SLEEP_GAP))]
 
     @gen.coroutine
+    def kot_want_walk(self):
+        while self.is_running:
+            yield [self.state.kot_want_walk(), gen.sleep(rnd.randint(*AFK_GAP))]
+
+    @gen.coroutine
     def add_to_feeder(self, message):
         command_text = message.text.split()
         new_food = " ".join(command_text[1::])
@@ -169,35 +175,4 @@ class KotChat:
 
     @gen.coroutine
     def kot_hug(self, message):
-        fat = self.satiety >= SATIETY_TO_FAT
-        thin = self.satiety == SATIETY_TO_THIN
-        userid = message.from_.id_
-        familiar = userid in self.members and self.members[userid].is_in_chat
-        carma = self.members[userid].carma if familiar else None
-        fname = message.from_.first_name or ""
-        sname = message.from_.last_name or ""
-        if carma is not None:
-            if carma >= NORMAL_CARMA:
-                carma_message = HUG_GOOD_CARMA
-            elif carma <= VERY_BAD_CARMA:
-                carma_message = HUG_BAD_CARMA
-            else:
-                carma_message = HUG_NO_CARMA
-        else:
-            carma_message = HUG_NO_CARMA
-
-        if fat:
-            weight_message = CAT_FAT
-        elif thin:
-            weight_message = CAT_THIN
-        else:
-            weight_message = CAT_NORMAL
-
-        result_message = CAT_HUG.safe_substitute(
-            weight=self.weight,
-            fname=fname,
-            sname=sname,
-            weight_action=weight_message,
-            cat_action=carma_message,
-        )
-        yield self.send_message(result_message)
+        yield self.state.kot_hug(message)
