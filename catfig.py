@@ -196,6 +196,6 @@ OUR_RANK = Template("""
 """)
 FULL_TABLE_MESSAGE = "<i>Верх таблицы выглядит так </i>"
 TABLE_ROW = Template("""<pre>
-$pos - $cat_name весом $weight c хозяином $fname $sname представляющим $org_name
+$pos - $cat_name весом $weight кило c хозяином $fname $sname представляющим $org_name
 </pre>
 """)
