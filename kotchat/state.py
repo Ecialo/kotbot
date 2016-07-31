@@ -462,6 +462,8 @@ class Sleep(Regular):
 
 class AFK(Regular):
 
+    name = "afk"
+
     def __init__(self, kotchat):
         super().__init__(kotchat)
         loop = ioloop.IOLoop.current()
@@ -517,6 +519,7 @@ class AFK(Regular):
 
 
 states = {
+    AFK.name: AFK,
     Sleep.name: Sleep,
     Awake.name: Awake,
     Care.name: Care,
