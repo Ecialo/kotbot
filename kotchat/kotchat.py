@@ -24,7 +24,7 @@ __author__ = 'ecialo'
 
 class KotChatMember:
 
-    def __init__(self, user):
+    def __init__(self, user=None):
         self._carma = INITAL_CARMA
         self.user = user
         self.is_in_chat = True
@@ -37,18 +37,27 @@ class KotChatMember:
     def carma(self, value):
         self._carma = min(MAX_CARMA, max(0, value))
 
+    def dump(self):
+        pass
+
+    def load(self, struct):
+        pass
+
 
 class KotChat:
 
-    def __init__(self, start_message, kotbot):
-        self.members = {start_message.from_.id_: KotChatMember(start_message.from_)}
+    def __init__(self, kotbot, start_message=None):
+        if start_message:
+            self.members = {start_message.from_.id_: KotChatMember(start_message.from_)}
+        else:
+            self.members = {}
         self.state = state.Hello(self)
         # self.state = state.Awake(self)
         # self.state = state.Care(self)
         # self.state = state.Sleep(self)
         self.is_running = True
         self.kotbot = kotbot
-        self.chat_id = start_message.chat.id_
+        self.chat_id = start_message.chat.id_ if start_message else -1
 
         self.name = None
         self._satiety = INITAL_SATIETY
@@ -65,6 +74,30 @@ class KotChat:
         iloop.call_later(rnd.randint(*CARE_GAP), self.kot_want_care)
         # iloop.call_later(120, self.kot_want_care)
         iloop.call_later(rnd.randint(*AFK_GAP), self.kot_want_walk)
+
+    def dump(self):
+        return {
+            "_id": self.chat_id,
+            "state": self.state.name,
+            "name": self.name,
+            "satiety": self.satiety,
+            "times_cared": self.times_cared,
+            "weight": self.weight,
+            "feeder_max_capacity": self.feeder_max_capacity,
+            "feeder": list(self.feeder)
+        }
+
+    def load(self, struct):
+        # print(struct["satiety"])
+        self.chat_id = struct["_id"]
+        self.state = state.states[struct["state"]](self)
+        self.name = struct["name"]
+        self.satiety = struct["satiety"]
+        # self.satiety += 11
+        # print(self.satiety, "RESULT")
+        self.times_cared = struct["times_cared"]
+        self.weight = struct["weight"]
+        self.feeder = deque(struct["feeder"])
 
     # def __getitem__(self, item):
     #     pass
@@ -109,6 +142,7 @@ class KotChat:
 
     @satiety.setter
     def satiety(self, value):
+        # print(value)
         self._satiety = min(MAX_SATIETY, max(0, value))
 
     @gen.coroutine

@@ -15,6 +15,8 @@ __author__ = 'ecialo'
 
 class State:
 
+    name = None
+
     def __init__(self, kotchat):
         self.kotchat = kotchat
         self.is_running = True
@@ -58,6 +60,8 @@ class State:
 
 class Hello(State):
 
+    name = "hello"
+
     @gen.coroutine
     def on_text(self, message):
         if not self.kotchat.name:
@@ -68,6 +72,7 @@ class Hello(State):
                 self.kotchat.name = "Котяра"
                 yield self.send_message(NO_NAME_CAT)
             self.kotchat.change_state(Awake)
+            ioloop.IOLoop.current().spawn_callback(self.kotchat.kotbot.save_kotchat, self.kotchat.chat_id)
 
 
 class Regular(State):
@@ -169,6 +174,8 @@ class Regular(State):
 
 
 class Awake(Regular):
+
+    name = "awake"
 
     @gen.coroutine
     def kot_want_sleep(self):
@@ -291,6 +298,8 @@ class Awake(Regular):
 
 class Care(Awake):
 
+    name = "care"
+
     def __init__(self, kotchat):
         super().__init__(kotchat)
         self.target_for_care = rnd.choice([user[0] for user in kotchat.members.items() if user[1].is_in_chat])
@@ -369,6 +378,8 @@ def check_loudness(text):
 
 
 class Sleep(Regular):
+
+    name = "sleep"
 
     def __init__(self, kotchat):
         super().__init__(kotchat)
@@ -503,3 +514,10 @@ class AFK(Regular):
                 sname=user.last_name or "",
             )
         )
+
+
+states = {
+    Sleep.name: Sleep,
+    Awake.name: Awake,
+    Care.name: Care,
+}

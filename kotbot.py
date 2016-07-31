@@ -14,6 +14,9 @@ from tornado import (
 )
 import os
 import teletoken
+from motor import (
+    motor_tornado as mt
+)
 from catfig import *
 from kotchat import (
     kotchat,
@@ -58,22 +61,43 @@ class KotBot(api2.TeleLich):
 
     def __init__(self, token):
         super().__init__(token)
-        self.kot_chats = {}
         self.commands = {
             "/start": self.handle_start,
             "/help": self.handle_help,
             "/stop": self.handle_stop,
             "/add_to_feeder": self.handle_add_to_feeder,
             "/care": self.handle_care,
-            # '/hunger': self.handle_hunger,
-            # '/sleep': self.handle_sleep,
-            # '/play': self.handle_play,
+            '/hunger': self.handle_hunger,
+            '/sleep': self.handle_sleep,
+            '/play': self.handle_play,
             '/hug': self.handle_hug,
             '/to_show': self.handle_show,
-
         }
 
-        self.show = cat_show.CatShow()
+        self.kot_db = mt.MotorClient(teletoken.DB).kotbot
+
+        self.kot_chats = {}
+        self.show = cat_show.CatShow(self.kot_db.cats)
+
+    @gen.coroutine
+    def save_kotchat(self, chat_id):
+        kotchat = self.kot_chats[chat_id].dump()
+        # print(kotchat)
+        yield self.kot_db.kotchats.save(kotchat)
+
+    @gen.coroutine
+    def dump(self):
+        kotchats = self.kot_db.kotchats
+        yield [kotchats.save(kotchat.dump()) for kotchat in self.kot_chats.values()]
+
+    @gen.coroutine
+    def autodump(self):
+        while True:
+            # print("autodump")
+            yield [self.dump(), gen.sleep(8*60*60)]
+
+    def load(self):
+        pass
 
     @gen.coroutine
     def on_text(self, message):
@@ -95,7 +119,11 @@ class KotBot(api2.TeleLich):
         chat_id = message.chat.id_
         # loop = ioloop.IOLoop.current()
         if chat_id not in self.kot_chats:
-            self.kot_chats[chat_id] = kotchat.KotChat(message, self)
+            self.kot_chats[chat_id] = kotchat.KotChat(self, message)
+
+            # ioloop.IOLoop.current().spawn_callback(self.save_kotchat, chat_id)
+            # print(self.save_kotchat(chat_id))
+
             yield self.send_message(
                 chat_id,
                 START_MESSAGE.safe_substitute(),
@@ -120,11 +148,13 @@ class KotBot(api2.TeleLich):
         chat_id = message.chat.id_
         self.kot_chats[chat_id].stop()
         self.kot_chats.pop(message.chat.id_)
-        yield self.send_message(
+        msg = self.send_message(
             chat_id,
             STOP_MESSAGE.safe_substitute(),
             parse_mode=api2.PARSE_MODE_HTML
         )
+        rm = self.kot_db.kotchats.remove(chat_id)
+        yield [msg, rm]
 
     @gen.coroutine
     def handle_add_to_feeder(self, message):
@@ -155,8 +185,8 @@ class KotBot(api2.TeleLich):
             ),
             parse_mode=api2.PARSE_MODE_HTML
         )
-        yield self.show.add_cat(message, cat.name or "", cat.weight)
-        top10, our_res = yield self.show.get_cat(message)
+        cat_ = yield self.show.add_cat(message, cat.name or "", cat.weight)
+        top10, our_res = yield self.show.get_pos_and_top(cat_)
         yield self.send_message(
             chat_id,
             OUR_RANK.safe_substitute(
@@ -196,6 +226,13 @@ class KotBot(api2.TeleLich):
 
     @gen.coroutine
     def run(self, polling=True):
+
+        kotchat_structs = yield self.kot_db.kotchats.find().to_list(None)
+        for kotchat_struct in kotchat_structs:
+            self.kot_chats[kotchat_struct["_id"]] = kotchat.KotChat(self)
+            self.kot_chats[kotchat_struct["_id"]].load(kotchat_struct)
+        ioloop.IOLoop.current().spawn_callback(self.autodump)
+
         if polling:
             yield self.poll()
         else:
