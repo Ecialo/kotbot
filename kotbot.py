@@ -227,11 +227,11 @@ class KotBot(api2.TeleLich):
     @gen.coroutine
     def run(self, polling=True):
 
-        kotchat_structs = yield self.kot_db.kotchats.find().to_list(None)
-        for kotchat_struct in kotchat_structs:
-            self.kot_chats[kotchat_struct["_id"]] = kotchat.KotChat(self)
-            self.kot_chats[kotchat_struct["_id"]].load(kotchat_struct)
-        ioloop.IOLoop.current().spawn_callback(self.autodump)
+        # kotchat_structs = yield self.kot_db.kotchats.find().to_list(None)
+        # for kotchat_struct in kotchat_structs:
+        #     self.kot_chats[kotchat_struct["_id"]] = kotchat.KotChat(self)
+        #     self.kot_chats[kotchat_struct["_id"]].load(kotchat_struct)
+        # ioloop.IOLoop.current().spawn_callback(self.autodump)
 
         if polling:
             yield self.poll()

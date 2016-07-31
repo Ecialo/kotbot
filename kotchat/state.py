@@ -518,7 +518,43 @@ class AFK(Regular):
         )
 
 
+class Licking(Awake):
+
+    name = "licking"
+
+    def __init__(self, kotchat):
+        super().__init__(kotchat)
+        self.places = {}
+        loop = ioloop.IOLoop.current()
+        loop.spawn_callback(
+            self.send_message,
+            SLEEP_MESSAGE
+        )
+        loop.call_later(rnd.randint(*SLEEP_DURATION), self.lick)
+
+    @gen.coroutine
+    def on_text(self, message):
+        if message.from_.id_ not in self.places:
+            yield self.guess_place(message)
+        else:
+            yield super().on_text(message)
+
+    @gen.coroutine
+    def guess_place(self, message):
+        pass
+
+    @gen.coroutine
+    def lick(self):
+        pass
+
+    @gen.coroutine
+    def kot_want_care(self):
+        pass
+
+
+
 states = {
+    Licking.name: Licking,
     AFK.name: AFK,
     Sleep.name: Sleep,
     Awake.name: Awake,
