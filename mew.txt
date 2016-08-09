@@ -1,4 +1,90 @@
-#SATIETY_TO_MESSAGE@6
+					//еда
+#SATIETY_TO_MESSAGE@0
+ОМНОМНОМНОМНОМНОМНОМ!!!
+#SATIETY_TO_MESSAGE@0
+<i>Котик заточил всю еду в мгновение ока</i>
+#SATIETY_TO_MESSAGE@1
+<i>Громко мурча и чавкая котик уплетает свою еду, а потом вылизывает кормушку</i>
+#SATIETY_TO_MESSAGE@1
+НЯМ-НЯМ-НЯМ!
+#SATIETY_TO_MESSAGE@2
+<i>Котяра навернул от души!</i>
+#SATIETY_TO_MESSAGE@2
 Хрум-хрум-хрум
-#SATIETY_TO_MESSAGE@11
+#SATIETY_TO_MESSAGE@3
+<i>Котик покушал и очень этим доволен</i>
+#SATIETY_TO_MESSAGE@3
+<i>Котяра трескает с большим удовольствием</i>
+#SATIETY_TO_MESSAGE@4
+Чавк-чавк-чавк!
+#SATIETY_TO_MESSAGE@5
+<i>Котик хорошо перекусил</i>
+#SATIETY_TO_MESSAGE@6
+<i>Котяра поел</i>
+#SATIETY_TO_MESSAGE@7
+<i>Котик все еще делает вид, что ему вкусно</i>
+#SATIETY_TO_MESSAGE@8
+<i>Котик без особого энтузиазма съедает свой корм</i>
+#SATIETY_TO_MESSAGE@9
+<i>В котика едва лезет!</i>
+#SATIETY_TO_MESSAGE@10
 <i>Котик долго принюхивается и зарывает кормушку</i>
+#SATIETY_TO_MESSAGE@10
+<i>Котик не притрагивается к еде и смотрит на $fname $sname тяжелым взглядом полным бесконечного презрения</i>
+#SATIETY_TO_MESSAGE@10
+<i>Котик кушает через силу</i>
+
+					//сон
+#SLEEP_MESSAGES@
+<i>Котик сладко спит на диване, выставив тёплое пузико напоказ.</i>
+#SLEEP_MESSAGES@
+<i>Котик дёргает во сне лапками и ушами. Кажется, ему что-то снится.</i>
+#SLEEP_MESSAGES@
+<i>Котик свернулся клубочком и закрыл нос пушистым хвостом.</i>
+#SLEEP_MESSAGES@
+<i>Котик распластался в пятне солнечного света и сладко посапывает во сне.</i>
+#SLEEP_MESSAGES@
+<i>От громкого храпа котика дрожат оконные рамы!</i>
+#SLEEP_MESSAGES@
+<i>Котяра устроился прямо на лучших $master хозяина и равномерно покрыл их своей шерстью.</i>
+#SLEEP_MESSAGES@
+<i>Котяра спит на коленях $master и пускает слюни</i>
+
+					//агрессия
+#AGRESSIVE_MESSAGES@
+ШШШшШшШ!!!
+#AGRESSIVE_MESSAGES@
+<i>Котяра утробно рычит на $master</i>
+#AGRESSIVE_MESSAGES@
+ХСССССССС!!!
+#AGRESSIVE_MESSAGES@
+У-у-у-рррррр! ШШ!
+#AGRESSIVE_MESSAGES@
+<i>Котяра дерется и норовит укусить!</i>
+
+					//хочет заботы
+#WANT_CARE_MESSAGE@
+<i>$cat_name трется о ногу $fname $sname и мурчит.</i>
+
+					//забота
+#CARE_MESSAGE@
+$fname $sname погладил котяру.
+#SLEEP_CARE_MESSAGE@
+<i>$fname $sname погладил спящего котика.</i>
+				//мяу
+#MEW@
+МЯУ!
+#MEW@
+Мяу!
+#MEW@
+Мяяяяу
+#MEW@
+Мияу
+#MEW@
+Мау!
+#MEW@
+МААААУ!
+#MEW@
+Мурр! Мафф!
+#MEW@
+Мямяу!
