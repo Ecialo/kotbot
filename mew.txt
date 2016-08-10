@@ -1,76 +1,115 @@
-					//еда
+﻿					//еда
 #SATIETY_TO_MESSAGE@0
 ОМНОМНОМНОМНОМНОМНОМ!!!
 #SATIETY_TO_MESSAGE@0
 <i>Котик заточил всю еду в мгновение ока</i>
 #SATIETY_TO_MESSAGE@1
-<i>Громко мурча и чавкая котик уплетает свою еду, а потом вылизывает кормушку</i>
+<i>Громко мурча и чавкая $cat_name уплетает свою еду, а потом вылизывает кормушку</i>
 #SATIETY_TO_MESSAGE@1
 НЯМ-НЯМ-НЯМ!
 #SATIETY_TO_MESSAGE@2
-<i>Котяра навернул от души!</i>
+<i>$cat_name навернул от души!</i>
 #SATIETY_TO_MESSAGE@2
 Хрум-хрум-хрум
 #SATIETY_TO_MESSAGE@3
-<i>Котик покушал и очень этим доволен</i>
+<i>$cat_name покушал и очень этим доволен</i>
 #SATIETY_TO_MESSAGE@3
-<i>Котяра трескает с большим удовольствием</i>
+<i>$cat_name трескает с большим удовольствием</i>
 #SATIETY_TO_MESSAGE@4
 Чавк-чавк-чавк!
 #SATIETY_TO_MESSAGE@5
-<i>Котик хорошо перекусил</i>
+<i>$cat_name хорошо перекусил</i>
 #SATIETY_TO_MESSAGE@6
-<i>Котяра поел</i>
+<i>$cat_name поел</i>
 #SATIETY_TO_MESSAGE@7
-<i>Котик все еще делает вид, что ему вкусно</i>
+<i>$cat_name все еще делает вид, что ему вкусно</i>
 #SATIETY_TO_MESSAGE@8
-<i>Котик без особого энтузиазма съедает свой корм</i>
+<i>$cat_name без особого энтузиазма съедает свой корм</i>
 #SATIETY_TO_MESSAGE@9
 <i>В котика едва лезет!</i>
 #SATIETY_TO_MESSAGE@10
-<i>Котик долго принюхивается и зарывает кормушку</i>
+<i>$cat_name долго принюхивается и зарывает кормушку</i>
 #SATIETY_TO_MESSAGE@10
-<i>Котик не притрагивается к еде и смотрит на $fname $sname тяжелым взглядом полным бесконечного презрения</i>
-#SATIETY_TO_MESSAGE@10
-<i>Котик кушает через силу</i>
+<i>$cat_name не притрагивается к еде и смотрит на $fname $sname тяжелым взглядом полным бесконечного презрения</i>
+#SATIETY_TO_MESSAGE@11
+<i>$cat_name так устал кушать, что уснул прямо у миски</i>
+#VOMIT_MESSAGE@
+<i>$cat_name съел слишком много, и его стошнило. В этом явно виноват $fname $sname</i>
 
 					//сон
 #SLEEP_MESSAGES@
-<i>Котик сладко спит на диване, выставив тёплое пузико напоказ.</i>
+<i>$cat_name сладко спит на диване, выставив теплое пузико напоказ.</i>
 #SLEEP_MESSAGES@
-<i>Котик дёргает во сне лапками и ушами. Кажется, ему что-то снится.</i>
+<i>$cat_name дёргает во сне лапками и ушами. Кажется, ему что-то снится.</i>
 #SLEEP_MESSAGES@
-<i>Котик свернулся клубочком и закрыл нос пушистым хвостом.</i>
+<i>$cat_name свернулся клубочком и закрыл нос пушистым хвостом.</i>
 #SLEEP_MESSAGES@
-<i>Котик распластался в пятне солнечного света и сладко посапывает во сне.</i>
+<i>$cat_name распластался в пятне солнечного света и сладко посапывает во сне.</i>
 #SLEEP_MESSAGES@
 <i>От громкого храпа котика дрожат оконные рамы!</i>
 #SLEEP_MESSAGES@
-<i>Котяра устроился прямо на лучших $master хозяина и равномерно покрыл их своей шерстью.</i>
+<i>$cat_name устроился прямо на лучших штанах $master хозяина и равномерно покрыл их своей шерстью.</i>
 #SLEEP_MESSAGES@
-<i>Котяра спит на коленях $master и пускает слюни</i>
+<i>$cat_name спит на коленях $master и пускает слюни</i>
 
 					//агрессия
 #AGRESSIVE_MESSAGES@
 ШШШшШшШ!!!
 #AGRESSIVE_MESSAGES@
-<i>Котяра утробно рычит на $master</i>
+<i>Котяра утробно рычит на $fname $sname</i>
 #AGRESSIVE_MESSAGES@
 ХСССССССС!!!
 #AGRESSIVE_MESSAGES@
 У-у-у-рррррр! ШШ!
 #AGRESSIVE_MESSAGES@
 <i>Котяра дерется и норовит укусить!</i>
+#AGRESSIVE_MESSAGES@
+<i>$cat_name рычит и убегает под диван</i>
 
 					//хочет заботы
 #WANT_CARE_MESSAGE@
 <i>$cat_name трется о ногу $fname $sname и мурчит.</i>
+#WANT_CARE_MESSAGE@
+<i>$cat_name настойчиво следует за $fname $sname</i>
+#WANT_CARE_MESSAGE@
+<i>$cat_name лег поверх бумаг $fname $sname и мешает работе</i>
+#WANT_CARE_MESSAGE@
+<i>$cat_name громко мяукает в другой комнате</i>
+#WANT_CARE_MESSAGE@
+i>$cat_name принес $fname $sname мышь к ногам...игрушечную, к счастью</i>
 
 					//забота
 #CARE_MESSAGE@
-$fname $sname погладил котяру.
+<i>$fname $sname погладил котяру.</i>
+#CARE_MESSAGE@
+<i>$fname $sname почесал котяре шейку</i>
 #SLEEP_CARE_MESSAGE@
 <i>$fname $sname погладил спящего котика.</i>
+#TARGET_CARE_MESSAGE@
+Мурррр!
+#TARGET_CARE_MESSAGE@
+<i>$cat_name мурчит изо всех сил и ласково выпускает когтюшки в $fname $sname</i>
+#TARGET_CARE_MESSAGE@
+<i>$cat_name трётся мордочкой об $fname $sname. Кажется, именно его внимания он и хотел</i>
+#TARGET_CARE_MESSAGE@
+<i>$cat_name преимущественно нежно покусывает $fname $sname</i>
+#TARGET_CARE_MESSAGE@
+<i>$cat_name позволил $fname $sname почесать свой животик</i>
+#DISAPPOINTED_CARE_MESSAGE@
+<i>Почему-то $cat_name не мурчит</i>
+#DISAPPOINTED_CARE_MESSAGE@
+<i>$cat_name легонько отталкивает $fname $sname лапой</i>
+#DISAPPOINTED_CARE_MESSAGE@
+<i>$cat_name не реагирует на ласку</i>
+
+#BAD_CARE_MESSAGE@
+<i>$cat_name недоволен и цапает $fname $sname за палец.</i>
+#BAD_CARE_MESSAGE@
+<i>$cat_name яростно дерется лапой</i>
+#BAD_CARE_MESSAGE@
+<i>Когда $fname $sname пытается погладить котяру, тот прогибает спину и не дает прикоснуться</i>
+#BAD_CARE_MESSAGE@
+<i>$cat_name изо всех сил отпинывается от рук $fname $sname задними лапами</i>
 				//мяу
 #MEW@
 МЯУ!
@@ -88,3 +127,19 @@ $fname $sname погладил котяру.
 Мурр! Мафф!
 #MEW@
 Мямяу!
+#MEW@
+Мррр!
+
+				//AFK
+#AFK_MESSAGE@
+<i>Котяре наскучило сидеть дома. $cat_name вышел на улицу прогуляться</i>
+#AFK_CARE_MESSAGE@
+<i>$fname $sname хочет погладить котяру, но обнаруживает, что того нет дома.</i>
+#AFK_HUG_MESSAGE@
+<i>$fname $sname хочет обнять котика, но его нет дома.</i>
+#BACK_MESSAGE_NORMAL@
+<i>$cat_name вернулся домой.</i>
+#BACK_MESSAGE_THIN@
+<i>$cat_name вернулся домой. Похоже, он немного похудел</i>
+#BACK_MESSAGE_FAT@
+<i>$cat_name вернулся домой сытый, довольный, и, как будто, потолстевший</i>
