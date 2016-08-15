@@ -19,7 +19,7 @@ class Mews:
         mew_name = None
         with open(mew_path) as mew_file:
             for line in mew_file:
-                valline = line.split(COMMENTARY)[0].strip("\n")
+                valline = line.split(COMMENTARY)[0].strip(" \t\n")
                 if valline:
                     if valline.startswith(MARK):
                         self[mew_name] = "\n".join(mew)
