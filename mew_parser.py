@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random as rnd
 from string import Template
+import json
 __author__ = 'ecialo'
 
 COMMENTARY = "//"
@@ -10,9 +11,11 @@ KEY = "@"
 
 class Mews:
 
-    def __init__(self, mew_path):
+    def __init__(self, mew_path, dev=False):
         self._mews = {}
+        self._dev = dev
         self.load_mews(mew_path)
+        # print(self._dev)
 
     def load_mews(self, mew_path):
         mew = []
@@ -38,7 +41,7 @@ class Mews:
 
     def __setitem__(self, key, value):
         if key:
-            value = Template(value)
+            value = Template(value) if not self._dev else value
             mark_key = key.strip(MARK).split(KEY)
             if len(mark_key) > 1 and mark_key[-1]:
                 mark, key = mark_key
@@ -53,10 +56,14 @@ class Mews:
                     self._mews[mark] = []
                 self._mews[mark].append(value)
 
+    def dump(self):
+        if self._dev:
+            return json.dumps(self._mews)
+
 
 if __name__ == '__main__':
-    m = Mews("./mew.txt")
-    print(m._mews)
+    m = Mews("./mew.txt", True)
+    print(m.dump())
     # print(m[("AZAZA", 2)])
     # print(m[("AZAZA", 2)])
     # print(m[("AZAZA", 2)])
