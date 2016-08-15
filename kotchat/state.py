@@ -528,7 +528,7 @@ class Licking(Awake):
         loop = ioloop.IOLoop.current()
         loop.spawn_callback(
             self.send_message,
-            SLEEP_MESSAGE
+            LICKING_START,
         )
         loop.call_later(rnd.randint(*SLEEP_DURATION), self.lick)
 
@@ -541,7 +541,7 @@ class Licking(Awake):
 
     @gen.coroutine
     def guess_place(self, message):
-        pass
+        self.places[message.from_.id_] = message.text
 
     @gen.coroutine
     def lick(self):

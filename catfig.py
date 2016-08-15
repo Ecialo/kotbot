@@ -222,3 +222,24 @@ TABLE_ROW = Template("""<pre>
 $pos - $cat_name весом $weight кило c хозяином $fname $sname представляющим $org_name
 </pre>
 """)
+
+LICKING_START = Template("""
+<i>$cat_name собирается что-нибудь вылизать.
+Что бы Вы подсунули ему под язык?</i>
+""")
+
+LICK = Template("""
+<i>$cat_name вылизывает</i> <b>$lick_object</b>
+""")
+
+NO_LICK = Template("""
+<i>У котика нет идей, что ему вылизать</i>
+""")
+
+LICK_GRATITUDE = Template("""
+<i>$cat_name очень рад, что $fname $sname ему это посоветовал</i>
+""")
+
+NO_LICK_ANGRY = Template("""
+<i>У котика чешется язык и ему грустно</i>
+""")
