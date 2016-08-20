@@ -530,7 +530,8 @@ class Licking(Awake):
             self.send_message,
             LICKING_START,
         )
-        loop.call_later(rnd.randint(*SLEEP_DURATION), self.lick)
+        # loop.call_later(rnd.randint(*SLEEP_DURATION), self.lick)
+        loop.call_later(30, self.lick)
 
     @gen.coroutine
     def on_text(self, message):
@@ -545,12 +546,31 @@ class Licking(Awake):
 
     @gen.coroutine
     def lick(self):
-        pass
+        if self.is_running:
+            if self.places:
+                user, place = rnd.choice(list(self.places.items()))
+                user = self.kotchat.members[user]
+                fname, sname = user.user.first_name, user.user.last_name
+                yield self.send_message(LICK.safe_substitute(lick_object=place))
+                yield self.send_message(LICK_GRATITUDE.safe_substitute(
+                    fname=fname,
+                    sname=sname,
+                ))
+                user.carma += 1
+            else:
+                yield self.send_message(NO_LICK)
+                yield self.send_message(NO_LICK_ANGRY)
+                for user in self.kotchat.members.values():
+                    user.carma -= 1
+            self.kotchat.change_state(Awake)
 
     @gen.coroutine
     def kot_want_care(self):
         pass
 
+    @gen.coroutine
+    def kot_want_sleep(self):
+        self.kotchat.change_state(Sleep)
 
 
 states = {

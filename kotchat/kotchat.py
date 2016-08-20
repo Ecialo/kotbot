@@ -51,10 +51,11 @@ class KotChat:
             self.members = {start_message.from_.id_: KotChatMember(start_message.from_)}
         else:
             self.members = {}
-        self.state = state.Hello(self)
+        # self.state = state.Hello(self)
         # self.state = state.Awake(self)
         # self.state = state.Care(self)
         # self.state = state.Sleep(self)
+        self.state = state.Licking(self)
         self.is_running = True
         self.kotbot = kotbot
         self.chat_id = start_message.chat.id_ if start_message else -1
