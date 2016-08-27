@@ -19,6 +19,7 @@ from telezombie2 import (
     types as types2,
 )
 from . import state
+from . import kot_shop
 __author__ = 'ecialo'
 
 
@@ -51,6 +52,8 @@ class KotChat:
             self.members = {start_message.from_.id_: KotChatMember(start_message.from_)}
         else:
             self.members = {}
+
+        self.shop = kot_shop.KotShop(self)
         self.state = state.Hello(self)
         # self.state = state.Awake(self)
         # self.state = state.Care(self)
@@ -63,8 +66,11 @@ class KotChat:
         self._satiety = INITAL_SATIETY
         self.weight = INITAL_WEIGHT
         self.times_cared = 0
+
         self.feeder = deque()
         self.feeder_max_capacity = FEEDER_SIZE
+
+        self.valerian = 0
 
         iloop = ioloop.IOLoop.current()
         iloop.call_later(SATIETY_TO_WAIT[self.satiety], self.kot_want_eat)
@@ -84,7 +90,8 @@ class KotChat:
             "times_cared": self.times_cared,
             "weight": self.weight,
             "feeder_max_capacity": self.feeder_max_capacity,
-            "feeder": list(self.feeder)
+            "feeder": list(self.feeder),
+
         }
 
     def load(self, struct):
@@ -210,3 +217,7 @@ class KotChat:
     @gen.coroutine
     def kot_hug(self, message):
         yield self.state.kot_hug(message)
+
+    @gen.coroutine
+    def kot_buy(self, item):
+        yield self.shop.buy(item)

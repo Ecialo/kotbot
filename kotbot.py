@@ -22,6 +22,7 @@ from kotchat import (
     kotchat,
     cat_show,
 )
+import json
 __author__ = 'ecialo'
 
 
@@ -63,17 +64,17 @@ class KotBot(api2.TeleLich):
         super().__init__(token)
         self.commands = {
             "/start": self.handle_start,
-            "/help": self.handle_help,
-            "/stop": self.handle_stop,
-            "/add_to_feeder": self.handle_add_to_feeder,
-            "/care": self.handle_care,
-            '/hunger': self.handle_hunger,
-            '/sleep': self.handle_sleep,
-            '/play': self.handle_play,
-            '/hug': self.handle_hug,
-            '/to_show': self.handle_show,
+            # "/help": self.handle_help,
+            # "/stop": self.handle_stop,
+            # "/add_to_feeder": self.handle_add_to_feeder,
+            # "/care": self.handle_care,
+            # '/hunger': self.handle_hunger,
+            # '/sleep': self.handle_sleep,
+            # '/play': self.handle_play,
+            # '/hug': self.handle_hug,
+            # '/to_show': self.handle_show,
+            '/buy': self.handle_buy
         }
-
         self.kot_db = mt.MotorClient(teletoken.DB).kotbot
 
         self.kot_chats = {}
@@ -108,9 +109,14 @@ class KotBot(api2.TeleLich):
         if text.startswith(COMMAND_START):
             yield self.commands[COMMAND_START](message)
         elif text.startswith(COMMAND_SYM) and kotchat_exist:
-            command = self.commands.get(re.search(COMMAND, text).group())
+            # print(text)
+            # print(self.commands)
+            command = text.split(" ", 1)[0]
+            # print(command, MEWNEY, command == MEWNEY)
+            command = self.commands.get(command)
+            # print(command)
             if command:
-                yield command(message)
+                loop.spawn_callback(command, message)
         elif kotchat_exist:
             loop.spawn_callback(self.kot_chats[chat_id].on_text, message)
 
@@ -223,6 +229,13 @@ class KotBot(api2.TeleLich):
     def handle_play(self, message):
         chat_id = message.chat.id_
         yield self.kot_chats[chat_id].state.kot_want_care()
+
+    @gen.coroutine
+    def handle_buy(self, message):
+        chat_id = message.chat.id_
+        command_item = message.text.split()
+        item = command_item[-1] if len(command_item) > 1 else None
+        yield self.kot_chats[chat_id].kot_buy(item)
 
     @gen.coroutine
     def run(self, polling=True):

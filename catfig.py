@@ -10,7 +10,7 @@ SECONDS_IN_MINUTE = 60
 
 CAT = ["кот", "кис"]
 
-COMMAND = re.compile(r"/\w+")
+# COMMAND = re.compile(r"/[\w\\]+")
 COMMAND_START = "/start"
 COMMAND_SYM = "/"
 
@@ -222,3 +222,25 @@ TABLE_ROW = Template("""<pre>
 $pos - $cat_name весом $weight кило c хозяином $fname $sname представляющим $org_name
 </pre>
 """)
+
+INITAL_MEWNEY = 100
+MEWNEY = b'\xf0\x9f\x92\xb0'.decode()
+FEEDER = b'\xf0\x9f\x8d\xb2'.decode()
+VALERIAN = b'\xf0\x9f\x8d\xbe'.decode()
+
+NOT_ENOUGH_MEWNEY = Template("""
+<i>Нужно больше мяунет</i>
+""")
+
+FEEDER_EXTENDED = Template("""
+<i>Вы купили новую, более глубокую и широкую миску. Теперь туда влезет гораздо больше еды.</i>
+""")
+
+BUY = Template("""
+<i>Добро пожаловать в мяугазин!
+Вы можете потратить мяунеты $MEWNEY на:
+$FEEDER - новую миску, в которую влезет больше еды.</i>
+""").safe_substitute(
+    MEWNEY=MEWNEY,
+    FEEDER=FEEDER,
+)
