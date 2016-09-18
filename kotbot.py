@@ -70,6 +70,7 @@ class KotBot(api2.TeleLich):
             '/hunger': self.handle_hunger,
             '/sleep': self.handle_sleep,
             '/play': self.handle_play,
+            '/walk': self.handle_walk,
             '/hug': self.handle_hug,
             '/to_show': self.handle_show,
         }
@@ -126,7 +127,7 @@ class KotBot(api2.TeleLich):
 
             yield self.send_message(
                 chat_id,
-                START_MESSAGE.safe_substitute(),
+                MEW_RUS[START_MESSAGE].safe_substitute(),
                 parse_mode=api2.PARSE_MODE_HTML
             )
         else:
@@ -218,6 +219,11 @@ class KotBot(api2.TeleLich):
     def handle_sleep(self, message):
         chat_id = message.chat.id_
         yield self.kot_chats[chat_id].state.kot_want_sleep()
+
+    @gen.coroutine
+    def handle_walk(self, message):
+        chat_id = message.chat.id_
+        yield self.kot_chats[chat_id].state.kot_want_walk()
 
     @gen.coroutine
     def handle_play(self, message):

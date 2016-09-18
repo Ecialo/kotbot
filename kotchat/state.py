@@ -67,10 +67,10 @@ class Hello(State):
         if not self.kotchat.name:
             if message:
                 self.kotchat.name = message.text[0].upper() + message.text[1::]
-                yield self.send_message(CAT_NAME_MESSAGE)
+                yield self.send_message(MEW_RUS[CAT_NAME_MESSAGE])
             else:
-                self.kotchat.name = "Котяра"
-                yield self.send_message(NO_NAME_CAT)
+                self.kotchat.name = "Кокос"
+                yield self.send_message(MEW_RUS[NO_NAME_CAT])
             self.kotchat.change_state(Awake)
             ioloop.IOLoop.current().spawn_callback(self.kotchat.kotbot.save_kotchat, self.kotchat.chat_id)
 
@@ -192,17 +192,17 @@ class Awake(Regular):
         if feeder:
             food = feeder.popleft()
             message = yield self.send_message(
-                FEEDER_CONSUME_MESSAGE.safe_substitute(food=food),
+                MEW_RUS[FEEDER_CONSUME_MESSAGE].safe_substitute(food=food),
             )
             yield self.kot_eat(message)
             if self.kotchat.satiety >= SATIETY_TO_FAT:
                 self.kotchat.weight += 1
-                yield self.send_message(FAT)
+                yield self.send_message(MEW_RUS[FAT])
         else:
             yield self.kot_mew(None)
             if self.kotchat.satiety == SATIETY_TO_THIN:
                 self.kotchat.weight -= 1
-                thin = yield self.send_message(THIN)
+                thin = yield self.send_message(MEW_RUS[THIN])
                 if self.kotchat.weight <= 0:
                     yield self.kotchat.kotbot.handle_stop(thin)
 
@@ -223,14 +223,14 @@ class Awake(Regular):
     @gen.coroutine
     def kot_agressive(self, message):
         yield self.send_message(
-            rnd.choice(AGRESSIVE_MESSAGES),
+            MEW_RUS[AGRESSIVE_MESSAGES],
             reply_to_message_id=message.message_id,
         )
 
     @gen.coroutine
     def kot_mew(self, message):
         yield self.send_message(
-            rnd.choice(MEW)
+            MEW_RUS[MEW]
         )
 
     @gen.coroutine
@@ -241,7 +241,7 @@ class Awake(Regular):
     @gen.coroutine
     def kot_hello(self, message):
         self.kotchat.members[message.from_.id_].is_in_chat = True
-        yield self.send_message(HELLO_MESSAGE)
+        yield self.send_message(MEW_RUS[HELLO_MESSAGE])
 
     @gen.coroutine
     def kot_care(self, message):
@@ -250,7 +250,7 @@ class Awake(Regular):
         if suc > 5:
             self.kotchat.times_cared = 0
             yield self.send_message(
-                BAD_CARE_MESSAGE.safe_substitute(
+                MEW_RUS[BAD_CARE_MESSAGE].safe_substitute(
                     fname=user.first_name or "",
                     sname=user.last_name or "",
                 )
@@ -258,7 +258,7 @@ class Awake(Regular):
         else:
             self.kotchat.times_cared += 1
             yield self.send_message(
-                CARE_MESSAGE.safe_substitute(
+                MEW_RUS[CARE_MESSAGE].safe_substitute(
                     fname=user.first_name or "",
                     sname=user.last_name or "",
                 )
@@ -273,16 +273,16 @@ class Awake(Regular):
         sname = message.from_.last_name
         rmessage = []
         if userid not in self.kotchat.members:
-            rmessage.append(SATIETY_TO_MESSAGE[self.kotchat.satiety])
+            rmessage.append(MEW_RUS[SATIETY_TO_MESSAGE, self.kotchat.satiety])
             self.kotchat.satiety += 1
         else:
-            rmessage.append(SATIETY_TO_MESSAGE[self.kotchat.satiety])
+            rmessage.append(MEW_RUS[SATIETY_TO_MESSAGE, self.kotchat.satiety])
             if self.kotchat.satiety < MAX_SATIETY:
                 self.kotchat.satiety += 1
                 self.kotchat.members[userid].carma += 1
             else:
                 rmessage.append(
-                    VOMIT_MESSAGE.safe_substitute(
+                    MEW_RUS[VOMIT_MESSAGE].safe_substitute(
                         fname=fname or "",
                         sname=sname or "",
                     )
@@ -309,7 +309,7 @@ class Care(Awake):
         loop = ioloop.IOLoop.current()
         loop.spawn_callback(
             self.send_message,
-            WANT_CARE_MESSAGE.safe_substitute(
+            MEW_RUS[WANT_CARE_MESSAGE].safe_substitute(
                 fname=target.first_name or "",
                 sname=target.last_name or "",
             ),
@@ -326,14 +326,14 @@ class Care(Awake):
             if self.times_not_cared == 0 and userid == self.target_for_care:
                 self.kotchat.members[message.from_.id_].carma += 1
                 yield self.send_message(
-                    TARGET_CARE_MESSAGE.safe_substitute(
+                    MEW_RUS[TARGET_CARE_MESSAGE].safe_substitute(
                         fname=user.first_name or "",
                         sname=user.last_name or "",
                     )
                 )
             else:
                 yield self.send_message(
-                    DISAPPOINTED_CARE_MESSAGE.safe_substitute(
+                    MEW_RUS[DISAPPOINTED_CARE_MESSAGE].safe_substitute(
                         fname=user.first_name or "",
                         sname=user.last_name or "",
                     )
@@ -342,7 +342,7 @@ class Care(Awake):
         elif suc > 5:
             self.kotchat.times_cared = 0
             yield self.send_message(
-                BAD_CARE_MESSAGE.safe_substitute(
+                MEW_RUS[BAD_CARE_MESSAGE].safe_substitute(
                     fname=user.first_name or "",
                     sname=user.last_name or "",
                 )
@@ -350,7 +350,7 @@ class Care(Awake):
         else:
             self.kotchat.times_cared += 1
             yield self.send_message(
-                CARE_MESSAGE.safe_substitute(
+                MEW_RUS[CARE_MESSAGE].safe_substitute(
                     fname=user.first_name or "",
                     sname=user.last_name or "",
                 )
@@ -367,7 +367,7 @@ class Care(Awake):
                 for user in self.kotchat.members.values():
                     user.carma -= 1
                 self.kotchat.change_state(Awake)
-                yield self.send_message(SAD_CAT_MESSAGE)
+                yield self.send_message(MEW_RUS[SAD_CAT_MESSAGE])
             else:
                 self.times_not_cared += 1
                 yield [self.send_photo(types2.BufferFile(CARE_IMG)), gen.sleep(rnd.randint(*CARE_TIMEOUT))]
@@ -386,7 +386,7 @@ class Sleep(Regular):
         loop = ioloop.IOLoop.current()
         loop.spawn_callback(
             self.send_message,
-            SLEEP_MESSAGE
+            MEW_RUS[SLEEP_MESSAGE]
         )
         loop.call_later(rnd.randint(*SLEEP_DURATION), self.kot_wake_up, None)
 
@@ -420,7 +420,7 @@ class Sleep(Regular):
         if self.is_running:
             self.kotchat.change_state(Awake)
             if reason is None:
-                yield self.send_message(WAKEUP_MESSAGE)
+                yield self.send_message(MEW_RUS[WAKEUP_MESSAGE])
             else:
                 userid = reason.from_.id_
                 if userid in self.kotchat.members:
@@ -430,7 +430,7 @@ class Sleep(Regular):
     @gen.coroutine
     def kot_sleep(self, message):
         yield self.send_message(
-            rnd.choice(SLEEP_MESSAGES),
+            MEW_RUS[SLEEP_MESSAGES],
             reply_to_message_id=message.message_id,
         )
 
@@ -438,7 +438,7 @@ class Sleep(Regular):
     def kot_care(self, message):
         user = message.from_
         yield self.send_message(
-            SLEEP_CARE_MESSAGE.safe_substitute(
+            MEW_RUS[SLEEP_CARE_MESSAGE].safe_substitute(
                 fname=user.first_name or "",
                 sname=user.last_name or "",
             )
@@ -455,7 +455,7 @@ class Sleep(Regular):
     @gen.coroutine
     def kot_agressive(self, message):
         yield self.send_message(
-            rnd.choice(AGRESSIVE_MESSAGES),
+            MEW_RUS[AGRESSIVE_MESSAGES],
             reply_to_message_id=message.message_id,
         )
 
@@ -469,7 +469,7 @@ class AFK(Regular):
         loop = ioloop.IOLoop.current()
         loop.spawn_callback(
             self.send_message,
-            AFK_MESSAGE
+            MEW_RUS[AFK_MESSAGE]
         )
         loop.call_later(rnd.randint(*AFK_DURATION), self.kot_back_home, None)
 
@@ -480,14 +480,14 @@ class AFK(Regular):
             self.kotchat.satiety = rnd.randint(SATIETY_TO_THIN, SATIETY_TO_FAT)
             if self.kotchat.satiety == SATIETY_TO_FAT:
                 self.kotchat.weight += 1
-                yield self.send_message(BACK_MESSAGE_FAT)
+                yield self.send_message(MEW_RUS[BACK_MESSAGE_FAT])
                 self.kotchat.change_state(Sleep)
             elif self.kotchat.satiety == SATIETY_TO_THIN:
                 self.kotchat.weight -= 1
-                yield self.send_message(BACK_MESSAGE_THIN)
+                yield self.send_message(MEW_RUS[BACK_MESSAGE_THIN])
                 self.kotchat.change_state(Awake)
             else:
-                yield self.send_message(BACK_MESSAGE_NORMAL)
+                yield self.send_message(MEW_RUS[BACK_MESSAGE_NORMAL])
                 self.kotchat.change_state(Awake)
 
     @gen.coroutine
@@ -501,7 +501,7 @@ class AFK(Regular):
     def kot_care(self, message):
         user = message.from_
         yield self.send_message(
-            AFK_CARE_MESSAGE.safe_substitute(
+            MEW_RUS[AFK_CARE_MESSAGE].safe_substitute(
                 fname=user.first_name or "",
                 sname=user.last_name or "",
             )
@@ -511,7 +511,7 @@ class AFK(Regular):
     def kot_hug(self, message):
         user = message.from_
         yield self.send_message(
-            AFK_HUG_MESSAGE.safe_substitute(
+            MEW_RUS[AFK_HUG_MESSAGE].safe_substitute(
                 fname=user.first_name or "",
                 sname=user.last_name or "",
             )

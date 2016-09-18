@@ -1,4 +1,16 @@
-﻿					//еда
+﻿                    //начало
+#START_MESSAGE@
+<i>У вас завелся котяра. Сейчас он тихо сидит в уголке.
+Как его зовут?</i>
+
+#NO_NAME_CAT
+<i>Котик решил, что будет зваться $cat_name!</i>
+
+#CAT_NAME_MESSAGE@
+<i>Котику нравится имя $cat_name</i>
+
+
+					//еда
 #SATIETY_TO_MESSAGE@0
 ОМНОМНОМНОМНОМНОМНОМ!!!
 #SATIETY_TO_MESSAGE@0
@@ -51,6 +63,17 @@
 <i>$cat_name устроился прямо на лучших штанах $master хозяина и равномерно покрыл их своей шерстью.</i>
 #SLEEP_MESSAGES@
 <i>$cat_name спит на коленях $master и пускает слюни</i>
+
+#ZZZ_MESSAGE@
+Хрррр-Хрррр
+#ZZZ_MESSAGE@
+Хр-Хр-Хр
+#ZZZ_MESSAGE@
+ХРРРРРРРРРР!
+#ZZZ_MESSAGE@
+"Хрррхррвап...
+#ZZZ_MESSAGE@
+ХррХррр
 
 					//агрессия
 #AGRESSIVE_MESSAGES@

@@ -2,6 +2,7 @@
 import re
 import io
 from string import Template
+from mew_parser import Mews
 __author__ = 'ecialo'
 
 KOTYARABOT = "kotyarabot"
@@ -34,44 +35,49 @@ SCARE_WORD = "брысь"
 LOUD = "!"
 
 EAT_WORDS = ["куш", "съе"]
-SATIETY_TO_MESSAGE = {
-    10: "Няяяям-Няяяяям",
-    9: "Няяяям-Няяяяям",
-    8: "Няяяям-Няяяяям",
-    7: "Няяяям-Няяяяям",
-    6: "Няяяям-Няяяяям",
-    5: "Няяяям-Няяяяям",
-    4: "Ням-Ням-Ням",
-    3: "Омномном",
-    2: "Омномномномном",
-    1: "Омномномчавкхлюп",
-    0: "ОМНОМНОМЧАВКНОМХЛЮПЧАВКНОМ"
-}
+# SATIETY_TO_MESSAGE = {
+#     10: "Няяяям-Няяяяям",
+#     9: "Няяяям-Няяяяям",
+#     8: "Няяяям-Няяяяям",
+#     7: "Няяяям-Няяяяям",
+#     6: "Няяяям-Няяяяям",
+#     5: "Няяяям-Няяяяям",
+#     4: "Ням-Ням-Ням",
+#     3: "Омномном",
+#     2: "Омномномномном",
+#     1: "Омномномчавкхлюп",
+#     0: "ОМНОМНОМЧАВКНОМХЛЮПЧАВКНОМ"
+# }
+SATIETY_TO_MESSAGE = "SATIETY_TO_MESSAGE"
 SATIETY_TO_WAIT = {i: SECONDS_IN_MINUTE*(i+1) for i in range(11)}
 
 SATIETY_TO_FAT = 5
 SATIETY_TO_THIN = 0
 
-VOMIT_MESSAGE = Template("""
-<i>Котяра съел слишком много и его стошнило. В этом явно виноват $fname $sname</i>
-""")
+# VOMIT_MESSAGE = Template("""
+# <i>Котяра съел слишком много и его стошнило. В этом явно виноват $fname $sname</i>
+# """)
+VOMIT_MESSAGE = "VOMIT_MESSAGE"
 
-START_MESSAGE = Template("""
-<i>У вас завелся котяра. Сейчас он тихо сидит в уголке.
-Как его зовут?</i>
-""")
+# START_MESSAGE = Template("""
+# <i>У вас завелся котяра. Сейчас он тихо сидит в уголке.
+# Как его зовут?</i>
+# """)
+START_MESSAGE = "START_MESSAGE"
 
 ALREADY_CAT_MESSAGE = Template("""
 <i>У вас уже есть котик!</i>
 """)
 
-CAT_NAME_MESSAGE = Template("""
-<i>Котику нравится имя $cat_name</i>
-""")
+# CAT_NAME_MESSAGE = Template("""
+# <i>Котику нравится имя $cat_name</i>
+# """)
+CAT_NAME_MESSAGE = "CAT_NAME_MESSAGE"
 
-NO_NAME_CAT = Template("""
-<i>Котик решил, что будет зваться $cat_name!</i>
-""")
+# NO_NAME_CAT = Template("""
+# <i>Котик решил, что будет зваться $cat_name!</i>
+# """)
+NO_NAME_CAT = "NO_NAME_CAT"
 
 HELP_MESSAGE = Template("""
 Это котик в телеграме.
@@ -105,13 +111,14 @@ FEEDER_NO_ADD_MESSAGE = Template("""
 SLEEP_DURATION = 5*SECONDS_IN_MINUTE, 10*SECONDS_IN_MINUTE
 # SLEEP_DURATION = 5, 10
 SLEEP_GAP = 30*SECONDS_IN_MINUTE, 60*SECONDS_IN_MINUTE
-SLEEP_MESSAGES = [
-    "Хрррр-Хрррр",
-    "Хр-Хр-Хр",
-    "ХРРРРРРРРРР!",
-    "Хрррхррвап...",
-    "ХррХррр",
-]
+# SLEEP_MESSAGES = [
+#     "Хрррр-Хрррр",
+#     "Хр-Хр-Хр",
+#     "ХРРРРРРРРРР!",
+#     "Хрррхррвап...",
+#     "ХррХррр",
+# ]
+SLEEP_MESSAGES = "ZZZ_MESSAGE"
 SLEEP_MESSAGE = Template("""
 <i>$cat_name ложится спать</i>
 """)
@@ -138,10 +145,10 @@ TARGET_CARE_MESSAGE = Template("""
 <i>$fname $sname погладил котика.</i>
 Мурррррррр.
 """)
-DISAPPOINTED_CARE_MESSAGE = Template("""
-<i>$fname $sname погладил котейку.</i>
-Мур.
-""")
+# DISAPPOINTED_CARE_MESSAGE = Template("""
+# <i>$fname $sname погладил котейку.</i>
+# Мур.
+# """)
 SAD_CAT_MESSAGE = Template("""
 Мямямяууууу...
 """)
@@ -154,43 +161,53 @@ AFK_DURATION = 60*SECONDS_IN_MINUTE, 120*SECONDS_IN_MINUTE
 # AFK_DURATION = 10, 10
 AFK_GAP = 720*SECONDS_IN_MINUTE, 1440*SECONDS_IN_MINUTE
 # FK_GAP = 20, 20
-AFK_MESSAGE = Template("""
-<i>Котяре наскучило сидеть дома. $cat_name вышел на улицу прогуляться</i>
-""")
-AFK_CARE_MESSAGE = Template("""
-<i>$fname $sname хочет погладить котяру, но обнаруживает, что того нет дома.</i>
-""")
-AFK_HUG_MESSAGE = Template("""
-<i>$fname $sname хочет обнять котика, но его нет дома.</i>
-""")
-BACK_MESSAGE_NORMAL = Template("""
-<i>$cat_name вернулся домой.</i>
-""")
-BACK_MESSAGE_THIN = Template("""
-<i>$cat_name вернулся домой. Похоже, он немного похудел</i>
-""")
-BACK_MESSAGE_FAT = Template("""
-<i>$cat_name вернулся домой сытый, довольный, и, как будто, потолстевший</i>
-""")
+# AFK_MESSAGE = Template("""
+# <i>Котяре наскучило сидеть дома. $cat_name вышел на улицу прогуляться</i>
+# """)
+AFK_MESSAGE = "AFK_MESSAGE"
+# AFK_CARE_MESSAGE = Template("""
+# <i>$fname $sname хочет погладить котяру, но обнаруживает, что того нет дома.</i>
+# """)
+AFK_CARE_MESSAGE = "AFK_CARE_MESSAGE"
+# AFK_HUG_MESSAGE = Template("""
+# <i>$fname $sname хочет обнять котика, но его нет дома.</i>
+# """)
+AFK_HUG_MESSAGE = "AFK_HUG_MESSAGE"
+# BACK_MESSAGE_NORMAL = Template("""
+# <i>$cat_name вернулся домой.</i>
+# """)
+BACK_MESSAGE_NORMAL = "BACK_MESSAGE_NORMAL"
+# BACK_MESSAGE_THIN = Template("""
+# <i>$cat_name вернулся домой. Похоже, он немного похудел</i>
+# """)
+BACK_MESSAGE_THIN = "BACK_MESSAGE_THIN"
+# BACK_MESSAGE_FAT = Template("""
+# <i>$cat_name вернулся домой сытый, довольный, и, как будто, потолстевший</i>
+# """)
+BACK_MESSAGE_FAT = "BACK_MESSAGE_FAT"
 
 # SLEEP_HUNGER = Template("""
 # <i> У котик
 # """)
 
-AGRESSIVE_MESSAGES = [
-    "ШШШшШшШ!!!",
-    "ШшШшШшШшшшшш!",
-    "МмшшшШШШШ!",
-    "Шшшшшшшшшшшшш....",
-]
+# AGRESSIVE_MESSAGES = [
+#     "ШШШшШшШ!!!",
+#     "ШшШшШшШшшшшш!",
+#     "МмшшшШШШШ!",
+#     "Шшшшшшшшшшшшш....",
+# ]
 
-MEW = [
-    "МЯУ!",
-    "Мяу!",
-    "Мяяяяу",
-    "Мияу",
-    "Меяу",
-]
+AGRESSIVE_MESSAGES = "AGRESSIVE_MESSAGES"
+
+# MEW = [
+#     "МЯУ!",
+#     "Мяу!",
+#     "Мяяяяу",
+#     "Мияу",
+#     "Меяу",
+# ]
+MEW = "MEW"
+DISAPPOINTED_CARE_MESSAGE = "DISAPPOINTED_CARE_MESSAGE"
 MEW_TRIGGER = ["мяу", "ня"]
 
 INITAL_WEIGHT = 5
@@ -222,3 +239,5 @@ TABLE_ROW = Template("""<pre>
 $pos - $cat_name весом $weight кило c хозяином $fname $sname представляющим $org_name
 </pre>
 """)
+
+MEW_RUS = Mews("./mew.txt")
