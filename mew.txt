@@ -2,7 +2,9 @@
 #SATIETY_TO_MESSAGE@0
 ОМНОМНОМНОМНОМНОМНОМ!!!
 #SATIETY_TO_MESSAGE@0
-<i>Котик заточил всю еду в мгновение ока</i>
+<i>$cat_name заточил всю еду в мгновение ока</i>
+#SATIETY_TO_MESSAGE@0
+<i>$cat_name слопал еду и даже кормушку слегка погрыз!</i>
 #SATIETY_TO_MESSAGE@1
 <i>Громко мурча и чавкая $cat_name уплетает свою еду, а потом вылизывает кормушку</i>
 #SATIETY_TO_MESSAGE@1
@@ -38,9 +40,9 @@
 
 					//сон
 #SLEEP_MESSAGES@
-<i>$cat_name сладко спит на диване, выставив теплое пузико напоказ.</i>
+<i>$cat_name сладко уснул на диване, выставив теплое пузико напоказ.</i>
 #SLEEP_MESSAGES@
-<i>$cat_name дёргает во сне лапками и ушами. Кажется, ему что-то снится.</i>
+<i>$cat_name заснул и теперь дёргает лапками и ушами. Кажется, ему что-то снится.</i>
 #SLEEP_MESSAGES@
 <i>$cat_name свернулся клубочком и закрыл нос пушистым хвостом.</i>
 #SLEEP_MESSAGES@
@@ -48,21 +50,23 @@
 #SLEEP_MESSAGES@
 <i>От громкого храпа котика дрожат оконные рамы!</i>
 #SLEEP_MESSAGES@
-<i>$cat_name устроился прямо на лучших штанах $master хозяина и равномерно покрыл их своей шерстью.</i>
+<i>$cat_name устроился прямо на лучших штанах $fname $sname  хозяина и равномерно покрыл их своей шерстью.</i>
 #SLEEP_MESSAGES@
-<i>$cat_name спит на коленях $master и пускает слюни</i>
+<i>$cat_name спит на коленях $fname $sname  и пускает слюни</i>
+#SLEEP_MESSAGES@
+<i>$cat_name уснул в позе "Будда Конасана"</i>
 
 					//агрессия
 #AGRESSIVE_MESSAGES@
 ШШШшШшШ!!!
 #AGRESSIVE_MESSAGES@
-<i>Котяра утробно рычит на $fname $sname</i>
+<i>$cat_name утробно рычит на $fname $sname</i>
 #AGRESSIVE_MESSAGES@
 ХСССССССС!!!
 #AGRESSIVE_MESSAGES@
 У-у-у-рррррр! ШШ!
 #AGRESSIVE_MESSAGES@
-<i>Котяра дерется и норовит укусить!</i>
+<i>$cat_name дерется и норовит укусить!</i>
 #AGRESSIVE_MESSAGES@
 <i>$cat_name рычит и убегает под диван</i>
 
@@ -77,12 +81,16 @@
 <i>$cat_name громко мяукает в другой комнате</i>
 #WANT_CARE_MESSAGE@
 i>$cat_name принес $fname $sname мышь к ногам...игрушечную, к счастью</i>
+#WANT_CARE_MESSAGE@
+<i>$cat_name кружит вокруг $fname $sname</i>
+#WANT_CARE_MESSAGE@
+<i>$cat_name зазывно мяучит</i>
 
 					//забота
 #CARE_MESSAGE@
 <i>$fname $sname погладил котяру.</i>
 #CARE_MESSAGE@
-<i>$fname $sname почесал котяре шейку</i>
+<i>$fname $sname почесал коте шейку</i>
 #SLEEP_CARE_MESSAGE@
 <i>$fname $sname погладил спящего котика.</i>
 #TARGET_CARE_MESSAGE@
@@ -143,3 +151,19 @@ i>$cat_name принес $fname $sname мышь к ногам...игрушечн
 <i>$cat_name вернулся домой. Похоже, он немного похудел</i>
 #BACK_MESSAGE_FAT@
 <i>$cat_name вернулся домой сытый, довольный, и, как будто, потолстевший</i>
+
+				//random
+#RANDOM_EVENT
+<i>$cat_name запрыгнул на окошко и увлеченно наблюдает за опадающими листочками</i>
+#RANDOM_EVENT
+<i>$cat_name играет с солнечными зайчиками на полу</i>
+#RANDOM_EVENT
+<i>$cat_name ловит жирную муху!</i>
+#RANDOM_EVENT
+<i>$cat_name что-то высматривает в пустом углу</i>
+#RANDOM_EVENT
+<i>$cat_name увлеченно гоняет свой мячик по комнате</i>
+#RANDOM_EVENT
+<i>$cat_name заплатил за интернет, а ты, $fname $sname?</i>
+#RANDOM_EVENT
+<i>$cat_name лежит, поджав лапки, и напоминает хлебушек</i>
